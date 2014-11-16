@@ -1,6 +1,6 @@
 <?php
 
-namespace \local;
+namespace \common;
 
 /**
  * Class which extends PHP's PDO.
