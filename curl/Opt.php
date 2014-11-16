@@ -1,8 +1,8 @@
 <?php
 
-namespace \local\classes\curl;
+namespace \common\curl;
 
-use \local\classes\objectConfig;
+use \common\objectConfig;
 
 class Opt {
 	protected $config = array(

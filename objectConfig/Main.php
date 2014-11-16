@@ -1,6 +1,6 @@
 <?php
 
-namespasce \local\classes\objectConfig;
+namespasce \common\objectConfig;
 
 class Main extends ArrayIterator {
 	protected $config = array();

@@ -1,6 +1,6 @@
 <?php
 
-namespace \local\classes\collections;
+namespace \common\collections;
 
 
 class OptionGroupStorage extends SplObjectStorage {

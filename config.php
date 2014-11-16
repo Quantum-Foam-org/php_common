@@ -1,6 +1,6 @@
 <?php
 
-namespace \local\classes;
+namespace \common\classes;
 
 // do configuration of the application
 class Config {

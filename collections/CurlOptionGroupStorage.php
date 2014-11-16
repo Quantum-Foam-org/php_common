@@ -1,9 +1,9 @@
 <?php
 
-namespace \local\classes\collections;
+namespace \common\collections;
 
-use \local\classes\curl\Opt;
+use \common\curl\Opt;
 
 class CurlOptionGroupStorage extends SplObjectStorage {
-	protected $objectType = '\local\classes\curl\Opt';
+	protected $objectType = '\common\curl\Opt';
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace \local\classes\query;
+namespace \common\query;
 
 /**
  * Creates a SQL select statement and returns the result set

@@ -1,6 +1,6 @@
 <?php
 
-namespace \local\classes\curl;
+namespace \common\curl;
 
 class Main {
     private $info = array(
