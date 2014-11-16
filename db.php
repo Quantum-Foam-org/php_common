@@ -9,7 +9,6 @@ namespace \local;
  */
 
 class Db extends PDO {
-
     private static $dbh = null; /// the PDO database handler
     
 	
@@ -35,62 +34,48 @@ class Db extends PDO {
         return self::$dbh;
     }
 	
-	/**
-	 * Will call a method prefixed by _ and automatically pass in the PDOStatement
-	 * @return Array
-	 * @throws Exception when there is no method _.$name
-	 */
-	public function __call($name, array $arguments) {
-		$name = '_'.$name;
-		if (method_exists($this, $name)) {
-			$get_sth_params = array($arguments[0], (isset($arguments[1]) ? $arguments[1] : array()));
-			$sth = call_user_func_array(array($this, 'get_sth'), $get_sth_params);
-			$result = call_user_func_array(array($this, $name), array($sth, isset($arguments[2]) ? $arguments[2] : 0));
-		} else {
-			throw new Exception('Method does not exist: '.__CLASS__.'::'.$name);
-		}
-		
-		return $result;
-	}
-	
 	
     /**
 	 * Will return a column, via the columnKey property
-	 * @param PDOStatement $sth of recently ran query
+	 * @param String $sql - The sql to run
+	 * @param Array $params - the params to run in a prepared statement
 	 * @param Integer $columnKey - the column of the query to return, default is 0
 	 * @return Array 
 	 */
-    public function _fetch_column(PDOStatement $sth, $columnKey = 0) {
-		return $sth->fetchColumn($columnKey);
+    public function fetch_column($sql, array $params = array(), $columnKey = 0) {
+		return $this->get_sth($sql, $params)->fetchColumn($columnKey);
     }
     
 	
 	/**
 	 * Will return the result of a query by calling the PDOStatement::fetchAll method
-	 * @param PDOStatement $sth of recently ran query
+	 * @param String $sql - The sql to run
+	 * @param Array $params - the params to run in a prepared statement
 	 * @return Array 
 	 */
-    public function _fetch_all(PDOStatement $sth) {
-        return $sth->fetchAll();
+    public function fetch_all($sql, array $params = array()) {
+        return $this->get_sth($sql, $params)->fetchAll();
     }
     
 	
 	/**
-	 * @param PDOStatement $sth of recently ran query
+	 * @param String $sql - The sql to run
+	 * @param Array $params - the params to run in a prepared statement
 	 * @param Integer $cursor - cursor position, the default is 0
 	 * @return Array
 	 */
-	public function _get_one(PDOStatement $sth, $cursor = 0) {
-        return $sth->fetch(PDO::FETCH_ASSOC, PDO::FETCH_ORI_NEXT, $cursor);
+	public function get_one($sql, array $params = array(), $cursor = 0) {
+        return $this->get_sth($sql, $params)->fetch(PDO::FETCH_ASSOC, PDO::FETCH_ORI_NEXT, $cursor);
 	}
 	
 	
 	/**
-	 * @param PDOStatement $sth of recently ran query
+	 * @param String $sql - The sql to run
+	 * @param Array $params - the params to run in a prepared statement
 	 * @param Integer $cursor - cursor position, the default is 0
 	 * @return Scalar
 	 */
-    public function _get_val(PDOStatement $sth, $cursor = 0) {
+    public function get_val($sql, array $params = array(), $cursor = 0) {
         if (($row = $this->get_one($sql, $params))) {
             $val =  array_pop($row);
         }
