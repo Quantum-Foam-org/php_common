@@ -1,7 +1,9 @@
 <?php
 
-class logger {
+namespace common\logging;
 
+class Logger {
+	
     private static $file_handle = null;
     private static $date = null;
     private static $type = array(
@@ -15,15 +17,14 @@ class logger {
 
         if (self::$instance === null) {
             self::$instance = new logger();
-            self::$file_handle = new SplFileObject(config::$log_file, 'a+');
-            self::$date = new DateTime('now');
+            self::$file_handle = new \SplFileObject(\common\Config::$log_file, 'a+');
+            self::$date = new \DateTime('now');
         }
-
         return self::$instance;
     }
 
     public function write($message, $type = 0) {
-        if ((boolean)config::$system['debug'] == TRUE) {
+        if (\common\Config::$system['debug'] === "1") {
         	if (!self::$file_handle->flock(LOCK_EX)) {
         		usleep(1);
 				$this->write($message, $type);

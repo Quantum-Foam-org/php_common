@@ -1,5 +1,6 @@
 <?php
 
+namespace common;
 
 spl_autoload_register(function($class) {
 	$classParts = explode('\\', $class);
