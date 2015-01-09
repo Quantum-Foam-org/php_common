@@ -1,11 +1,11 @@
 <?php
 
-namespace common\object;
+namespace \common\object;
+
 
 class Config extends \ArrayObject {
 	protected $config = array();
 	
-		
 	public function offsetExists($offset) {
 		return property_exists($this, $offset);
 	}

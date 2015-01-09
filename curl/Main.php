@@ -2,134 +2,214 @@
 
 namespace \common\curl;
 
+use \common\collections\CurlOptionGroupStorage\Main as curlOptStorage;
+use \common\logging\Logger as Logger;
+
+
+/**
+ * cURL PHP wrapper. 
+ */
 class Main {
-    private $info = array(
-	array(
-	    'HTTP_CODE',
-	    'FILETIME',
-	    'TOTAL_TIME',
-	    'NAMELOOKUP_TIME',
-	    'CONNECT_TIME',
-	    'PRETRANSFER_TIME',
-	    'START_TRANSFER_TIME',
-	    'REDIRECT_COUNT',
-	    'REDIRECT_TIME',
-	    'SIZE_UPLOAD',
-	    'SIZE_DOWNLOAD',
-	    'SPEED_DOWNLOAD',
-	    'SPEED_UPLOAD',
-	    'HEADER_SIZE',
-	    'HEADER_OUT',
-	    'REQUEST_SIZE',
-	    'SSL_VERIFYRESULT',
-	    'CONTENT_LENGTH_DOWNLOAD',
-	    'CONTENT_LENGTH_UPLOAD',
-	    'CONTENT_TYPE'
-	)
+    private $infoOptions = array(
+    		CURLINFO_EFFECTIVE_URL,
+		    CURLINFO_HTTP_CODE,
+		    CURLINFO_FILETIME,
+		    CURLINFO_TOTAL_TIME,
+		    CURLINFO_NAMELOOKUP_TIME,
+		    CURLINFO_CONNECT_TIME,
+		   	CURLINFO_PRETRANSFER_TIME,
+		    CURLINFO_START_TRANSFER_TIME,
+		    CURLINFO_REDIRECT_COUNT,
+		    CURLINFO_REDIRECT_TIME,
+    		CURLINFO_REDIRECT_URL,
+    		CURLINFO_PRIMARY_IP,
+    		CURLINFO_PRIMARY_PORT,
+    		CURLINFO_LOCAL_IP,
+    		CURLINFO_LOCAL_PORT,
+		    CURLINFO_SIZE_UPLOAD,
+		    CURLINFO_SIZE_DOWNLOAD,
+		    CURLINFO_SPEED_DOWNLOAD,
+		    CURLINFO_SPEED_UPLOAD,
+		    CURLINFO_HEADER_SIZE,
+		    CURLINFO_HEADER_OUT,
+		    CURLINFO_REQUEST_SIZE,
+		    CURLINFO_SSL_VERIFYRESULT,
+		    CURLINFO_CONTENT_LENGTH_DOWNLOAD,
+		    CURLINFO_CONTENT_LENGTH_UPLOAD,
+		    CURLINFO_CONTENT_TYPE,
+    		CURLINFO_PRIVATE
     );
-    private $errors = array();
-    private $mh = null;
-    private $chs = array();
-    private $lastChs = null;
-    private $curChs = null;
+    private $mh = FALSE;
+    private $chs = [];
+    private $ch = null;
     private $curlOptions = null;
+	private $output = FALSE; // is an array if curl option return transfer is true
 	
 	
+	/**
+	 * @param boolean $mh TRUE to run a curl multi handle
+	 */
     public function __construct($mh = FALSE) {
-	
+		$this->mh = $mh;
     }
     
-    public function createChs() {
-	$this->lastChs = $this->curChs;
-	$this->curChs = $this->chs[] = curl_init();
-	if ($this->mh !== null) {
-	    curl_multi_add_handle($this->mh, $this->curChs);
-	}
+    
+    /**
+     * resets 
+     * @param string $mh
+     */
+    public function reset($mh = FALSE) {
+    	$this->mh = $mh;
+    	$this->chs = [];
+    	$this->ch = null;
+    	$this->curlOptions = new curlOptStorage();
+    	$this->output = FALSE;
     }
     
-	public function addOption($curlConstant, $value) {
-		$curlOpt = new Opt();
-		$curlOpt[$curlConstant] = $value;
+        
+    /**
+     * Creates a curl handle or a curl multi handle 
+     * @return resource the current curl handle
+     */
+    public function create() {
+		$this->ch = curl_init();
+		if ($this->mh !== FALSE) {
+			if (!get_resource_type($this->mh) === 'curl_multi' || ($this->mh = curl_multi_init()) !== FALSE) {
+				$this->chs[] = $this->ch;
+		    	curl_multi_add_handle($this->mh, $this->ch);
+			}
+		}
 		
-		$this->curlOptions->attach($curlOpt);
+		return $this->ch;
+    }
+    
+    
+    /**
+     * Will return thet current curl handle
+     * @return resource
+     */
+    public function getCh() {
+    	return $this->ch;
+    }
+    
+    /**
+     * Adds options to the curl handles
+     * @param int $curlConstant a name of a curl constant for curl_setopt
+     * @param mixed $value a value to a curl constant for curl_setopt
+     * @param resource $ch a curl resource
+     * @throws InvalidArgumentException when no option can be set
+     */
+	public function addOption($curlConstant, $value, $ch = null) {
+		$curlOpt = new Opt();
+		try {
+			$curlOpt->cName = $curlConstant;
+			$curlOpt->value = $value;
+
+
+			if ($curlOpt->cName === CURLOPT_RETURNTRANSFER && $curlOpt->value === TRUE) {
+				$this->output = [];
+			}
+				
+			if (get_resource_type($ch) === 'curl' && in_array($ch, $this->chs, TRUE)) {
+				curl_setopt($ch, $opt->cName, $opt->value);
+				$this->ch = $ch;
+			} else if (strpos($curlOpt->cName, 'CURLMOPT_') === 0 && $this->mh !== FALSE) {
+				curl_multi_setopt($this->mh, $opt->cName, $opt->value);
+			} else if ($ch === null) {
+				curl_setopt($this->ch, $opt->cName, $opt->value);
+			} else {
+				throw new InvalidArgumentException('Could not set curl option, is @param $ch invalid: '.var_export($ch, TRUE));
+			}
+				
+			$this->curlOptions->attach($curlOpt);
+			$result = TRUE;
+		} catch (UnexpectedValueException $ue) {
+			$result = FALSE;
+		} catch (RuntimeException $re) {
+			$result = FALSE;
+		}
+		
+		return $result;
 	}
 	
+	/**
+	 * Removes curl options set durng addOption from the curl option storage @var curlOptions
+	 */
 	public function resetOptions() {
 		$this->curlOptions->removeAll();
 	}
 	
-	private function setOpts(OptionGroupStorage $co) {
-		foreach ($co as $opt) {
-			curl_setopt($this->curChs, $opt->cName, $opt->value);
-		}
-	}
 	
+	/**
+	 * Will return an array with information from curl_getinfo populated for each curl handle
+	 * return array
+	 */
     public function info() {
-	foreach ($this->chs as &$ch) {
-	    $this->errors[] = curl_error($ch) . "\n";
-	    $this->info[] = array(
-		curl_getinfo($ch, CURLINFO_HTTP_CODE),
-		curl_getinfo($ch, CURLINFO_FILETIME),
-		curl_getinfo($ch, CURLINFO_TOTAL_TIME),
-		curl_getinfo($ch, CURLINFO_NAMELOOKUP_TIME),
-		curl_getinfo($ch, CURLINFO_CONNECT_TIME),
-		curl_getinfo($ch, CURLINFO_PRETRANSFER_TIME),
-		curl_getinfo($ch, CURLINFO_STARTTRANSFER_TIME),
-		curl_getinfo($ch, CURLINFO_REDIRECT_COUNT),
-		curl_getinfo($ch, CURLINFO_REDIRECT_TIME),
-		curl_getinfo($ch, CURLINFO_SIZE_UPLOAD),
-		curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD),
-		curl_getinfo($ch, CURLINFO_SPEED_DOWNLOAD),
-		curl_getinfo($ch, CURLINFO_SPEED_UPLOAD),
-		curl_getinfo($ch, CURLINFO_HEADER_SIZE),
-		curl_getinfo($ch, CURLINFO_HEADER_OUT),
-		curl_getinfo($ch, CURLINFO_REQUEST_SIZE),
-		curl_getinfo($ch, CURLINFO_SSL_VERIFYRESULT),
-		curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD),
-		curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_UPLOAD),
-		curl_getinfo($ch, CURLINFO_CONTENT_TYPE)
-	    );
-
-	    if ($this->mh) {
-		curl_multi_remove_handle($this->mh, $ch);
-	    }
-
-	    curl_close($ch);
-	}
-    }
-
-    public function run() {
-	if ($this->mh) {
-	    $active = null;
-
-	    do {
-		$result = curl_multi_exec($this->mh, $active);
-		if ($result > 0) {
-		    echo 'ERROR: ' . curl_multi_strerror($result);
+    	$info = [];
+		foreach ($this->chs as $ch) {
+			$info[] = array_map(function($v, $ch) { return array($v, curl_getinfo($ch, $v)); }, $this->infoOptions, $ch);
 		}
-		if (curl_multi_select($this->mh) == -1) {
-		    break;
-		}
-	    } while (($active && $result == CURLM_OK) || $result == CURLM_CALL_MULTI_PERFORM);
-	} else {
-	    $result = curl_exec($this->curChs);
-	}
-	
-	return $result;
+		return $info;
     }
     
+    
+	/**
+	 * Runs all curl handles and will log curl errors using Logger.  Output can be stored in @var output if CURLOPT_RETURNTRANSFER is TRUE
+	 * @return mixed the result of curl_exec
+	 */
+    public function run() {
+		if ($this->mh !== FALSE) {
+		    $active = null;
+			
+		    do {
+				$result = curl_multi_exec($this->mh, $active);
+				if ($result > 0) {
+				    Logger::obj()->write('ERROR: ' . curl_multi_strerror($result), 1);
+				}
+				if (curl_multi_select($this->mh) == -1) {
+				    break;
+				}
+		    } while (($active && $result == CURLM_OK) || $result == CURLM_CALL_MULTI_PERFORM);
+		    if (is_array($this->output)) {
+		    	$this->output = array_map(function($ch) { return array(curl_getinfo($ch, CURLINFO_EFFECTIVE_URL), curl_multi_getcontent($ch)); }, $this->chs);
+		    }
+		} else {
+		    $result = curl_exec($this->ch);
+		    if (($er = curl_errno($this->ch)) !== 0) {
+		    	Logger::obj()->write('ERROR: ' . curl_strerror($er), 1);
+		    }
+		    if (is_array($this->output)) {
+		    	$this->output[] = array(curl_getinfo($this->ch, CURLINFO_EFFECTIVE_URL), $result);
+		    }
+		}
+		
+		return $result;
+    }
+    
+    
+    /**
+     * @return mixed will return the output of a request when CURLOPT_RETURNTRANSFER is TRUE FALSE otherwise
+     */
+   	public function getOutput() {
+   		return $this->output;
+   	}
+   	
+    
+   	/**
+   	 * Closes all curl handles
+   	 */
     public function __destroy() {
-	if (!$this->mh) {
-	    foreach ($this->chs as &$ch) {
-		curl_multi_remove_handle($this->mh, $ch);
-		curl_close($ch);
-	    }
-	    curl_multi_close($this->mh);
-	    unset($ch);
-	} else {
-	    curl_close($this->curChs);
-	}
-	
-	unset($this->chs, $this->lastChs, $this->curChs, $this->mhs);
+		if ($this->mh !== FALSE) {
+		    foreach ($this->chs as $ch) {
+				curl_multi_remove_handle($this->mh, $ch);
+				curl_close($ch);
+		    }
+		    curl_multi_close($this->mh);
+		    unset($ch);
+		} else {
+		    curl_close($this->ch);
+		}
+		
+		unset($this->chs, $this->ch, $this->mh, $this->curlOptions, $this->info, $this->infoOptions, $this->output);
     }
 }

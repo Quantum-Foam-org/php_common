@@ -2,10 +2,15 @@
 
 namespace \common\curl;
 
-use \common\objectConfig;
+use \common\object\Config as objectConfig;
 
-class Opt {
-	protected $config = array(
+
+class Opt extends objectConfig {
+	private $cName, $value;
+	
+	protected $configName = array();
+	
+	protected $configValue = array(
 		CURLOPT_AUTOREFERER => array(FILTER_VALIDATE_BOOLEAN),
 		CURLOPT_BINARYTRANSFER => array(FILTER_VALIDATE_BOOLEAN),
 		CURLOPT_COOKIESESSION => array(FILTER_VALIDATE_BOOLEAN),
@@ -116,21 +121,55 @@ class Opt {
 		CURLOPT_HTTPHEADER => array(),
 		CURLOPT_POSTQUOTE => array(),
 		CURLOPT_QUOTE => array(),
-
-
+		
+		
 		CURLOPT_FILE => array(),
 		CURLOPT_INFILE => array(),
 		CURLOPT_STDERR => array(),
 		CURLOPT_WRITEHEADER => array(),
-
+		
 
 		CURLOPT_HEADERFUNCTION => array(),
 		CURLOPT_PASSWDFUNCTION => array(),
 		CURLOPT_PROGRESSFUNCTION => array(),
 		CURLOPT_READFUNCTION => array(),
 		CURLOPT_WRITEFUNCTION => array(),
-
-
+		
+		
 		CURLOPT_SHARE => array()
 	);
+	
+
+	/**
+	 * Assigns values to @var $configName
+	 */
+	public function __construct() {
+		$this->configName = array_keys($this->configValue);
+		
+		parent::__construct();
+	}
+	
+	
+	/**
+	 * 
+	 * @param string $offset cName or value
+	 * @param mixed $value a correct value for cName or value based upon configName or configValue
+	 * @throws \UnexpectedValueException when @param $value is invalild
+	 * @throws \RuntimeException if property cannot be set 
+	 */
+	public function offsetSet($offset, $value) {
+		if ($offset === 'cName') {
+			if (in_array($value, $this->configName, TRUE)) {
+				$this->cName = $value;
+			} else {
+				throw new \UnexpectedValueException('Invalid value, '.var_export($value, TRUE).', for offset '.$offset);
+			}
+		} else if ($offset === 'value' && isset($this->configValue[$this->cName], $this->config[$this->cName][0])) {
+			if (!($this->value = filter_var($value, $this->config[$this->cName][0], (is_array($this->config[$this->cName][1]) ? $this->config[$this->cName][1] : array())))) {
+				throw new \UnexpectedValueException('Invalid value, '.var_export($value, TRUE).', for offset '.$offset);
+			}
+		} else {
+			throw new \RuntimeException($offset.' does not exist for '.__CLASS__);
+		}
+	}
 }
