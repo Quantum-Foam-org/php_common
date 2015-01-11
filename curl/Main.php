@@ -72,10 +72,9 @@ class Main {
      * @return resource the current curl handle
      */
     public function create() {
-		$this->ch = curl_init();
+		$this->chs[] = $this->ch = curl_init();
 		if ($this->mh !== FALSE) {
 			if ((is_resource($this->mh) && !get_resource_type($this->mh) === 'curl_multi') || ($this->mh = curl_multi_init()) !== FALSE) {
-				$this->chs[] = $this->ch;
 		    	curl_multi_add_handle($this->mh, $this->ch);
 			}
 		}
@@ -149,8 +148,9 @@ class Main {
     public function info() {
     	$info = [];
 		foreach ($this->chs as $ch) {
-			$info[] = array_map(function($v, $ch) { return array($v, curl_getinfo($ch, $v)); }, $this->infoOptions, $ch);
+			$info[] = array_map(function($v) use($ch) { return array($v, curl_getinfo($ch, $v)); }, $this->infoOptions);
 		}
+		
 		return $info;
     }
     
