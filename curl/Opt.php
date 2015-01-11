@@ -1,16 +1,17 @@
 <?php
 
-namespace \common\curl;
+namespace common\curl;
 
 use \common\object\Config as objectConfig;
 
 
+define('common\curl\OPT_FILTER', 'CurlOptionFilter');
+define('common\curl\FILTER_ISRESOURCESTREAM', TRUE);
+
 class Opt extends objectConfig {
-	private $cName, $value;
+	protected $cName, $value;
 	
-	protected $configName = array();
-	
-	protected $configValue = array(
+	protected $config = array(
 		CURLOPT_AUTOREFERER => array(FILTER_VALIDATE_BOOLEAN),
 		CURLOPT_BINARYTRANSFER => array(FILTER_VALIDATE_BOOLEAN),
 		CURLOPT_COOKIESESSION => array(FILTER_VALIDATE_BOOLEAN),
@@ -28,13 +29,13 @@ class Opt extends objectConfig {
 		CURLOPT_FTP_CREATE_MISSING_DIRS => array(FILTER_VALIDATE_BOOLEAN),
 		CURLOPT_FTPAPPEND => array(FILTER_VALIDATE_BOOLEAN),
 		CURLOPT_TCP_NODELAY => array(FILTER_VALIDATE_BOOLEAN),
-		CURLOPT_FTPASCII => array(FILTER_VALIDATE_BOOLEAN),
+		//CURLOPT_FTPASCII => array(FILTER_VALIDATE_BOOLEAN),
 		CURLOPT_FTPLISTONLY => array(FILTER_VALIDATE_BOOLEAN),
 		CURLOPT_HEADER => array(FILTER_VALIDATE_BOOLEAN),
 		CURLINFO_HEADER_OUT => array(FILTER_VALIDATE_BOOLEAN),
 		CURLOPT_HTTPGET => array(FILTER_VALIDATE_BOOLEAN),
 		CURLOPT_HTTPPROXYTUNNEL => array(FILTER_VALIDATE_BOOLEAN),
-		CURLOPT_MUTE => array(FILTER_VALIDATE_BOOLEAN),
+		//CURLOPT_MUTE => array(FILTER_VALIDATE_BOOLEAN),
 		CURLOPT_NETRC => array(FILTER_VALIDATE_BOOLEAN),
 		CURLOPT_NOBODY => array(FILTER_VALIDATE_BOOLEAN),
 		CURLOPT_NOPROGRESS => array(FILTER_VALIDATE_BOOLEAN),
@@ -50,7 +51,7 @@ class Opt extends objectConfig {
 
 
 		CURLOPT_BUFFERSIZE => array(FILTER_VALIDATE_INT),
-		CURLOPT_CLOSEPOLICY => array(FILTER_VALIDATE_INT),
+		//CURLOPT_CLOSEPOLICY => array(FILTER_VALIDATE_INT),
 		CURLOPT_CONNECTTIMEOUT => array(FILTER_VALIDATE_INT),
 		CURLOPT_CONNECTTIMEOUT_MS => array(FILTER_VALIDATE_INT),
 		CURLOPT_DNS_CACHE_TIMEOUT => array(FILTER_VALIDATE_INT),
@@ -123,14 +124,14 @@ class Opt extends objectConfig {
 		CURLOPT_QUOTE => array(),
 		
 		
-		CURLOPT_FILE => array(),
-		CURLOPT_INFILE => array(),
-		CURLOPT_STDERR => array(),
-		CURLOPT_WRITEHEADER => array(),
+		CURLOPT_FILE => array(\common\curl\OPT_FILTER, \common\curl\FILTER_ISRESOURCESTREAM),
+		CURLOPT_INFILE => array(\common\curl\OPT_FILTER, \common\curl\FILTER_ISRESOURCESTREAM),
+		CURLOPT_STDERR => array(\common\curl\OPT_FILTER, \common\curl\FILTER_ISRESOURCESTREAM),
+		CURLOPT_WRITEHEADER => array(\common\curl\OPT_FILTER, \common\curl\FILTER_ISRESOURCESTREAM),
 		
 
 		CURLOPT_HEADERFUNCTION => array(),
-		CURLOPT_PASSWDFUNCTION => array(),
+		//CURLOPT_PASSWDFUNCTION => array(),
 		CURLOPT_PROGRESSFUNCTION => array(),
 		CURLOPT_READFUNCTION => array(),
 		CURLOPT_WRITEFUNCTION => array(),
@@ -138,16 +139,6 @@ class Opt extends objectConfig {
 		
 		CURLOPT_SHARE => array()
 	);
-	
-
-	/**
-	 * Assigns values to @var $configName
-	 */
-	public function __construct() {
-		$this->configName = array_keys($this->configValue);
-		
-		parent::__construct();
-	}
 	
 	
 	/**
@@ -159,17 +150,26 @@ class Opt extends objectConfig {
 	 */
 	public function offsetSet($offset, $value) {
 		if ($offset === 'cName') {
-			if (in_array($value, $this->configName, TRUE)) {
+			if (isset($this->config[$value])) {
 				$this->cName = $value;
 			} else {
 				throw new \UnexpectedValueException('Invalid value, '.var_export($value, TRUE).', for offset '.$offset);
 			}
-		} else if ($offset === 'value' && isset($this->configValue[$this->cName], $this->config[$this->cName][0])) {
-			if (!($this->value = filter_var($value, $this->config[$this->cName][0], (is_array($this->config[$this->cName][1]) ? $this->config[$this->cName][1] : array())))) {
-				throw new \UnexpectedValueException('Invalid value, '.var_export($value, TRUE).', for offset '.$offset);
+		} else if ($offset === 'value' && isset($this->config[$this->cName])) {
+			if ($this->config[$this->cName][0] === \common\curl\OPT_FILTER && isset($this->config[$this->cName][1])) {
+				switch($this->config[$this->cName][1]) {
+					case \common\curl\FILTER_ISRESOURCESTREAM:
+						$this->value = \common\filters\IsResourceStream::validate($value);
+						break;
+				}
+				if ($this->value === FALSE) {
+					throw new \UnexpectedValueException('Invalid value, '.var_export($value, TRUE).', for offset '.$offset.' and cName: '.$this->cName);
+				}
+			} else if (!($this->value = filter_var($value, $this->config[$this->cName][0], (isset($this->config[$this->cName][1]) && is_array($this->config[$this->cName][1]) ? $this->config[$this->cName][1] : array())))) {
+				throw new \UnexpectedValueException('Invalid value, '.var_export($value, TRUE).', for offset '.$offset.' and cName: '.$this->cName);
 			}
 		} else {
-			throw new \RuntimeException($offset.' does not exist for '.__CLASS__);
+			throw new \RuntimeException($offset.' does not exist for '.__CLASS__.' or cName has not yet been set for config option');
 		}
 	}
 }

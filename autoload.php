@@ -3,19 +3,12 @@
 namespace common;
 
 spl_autoload_register(function($class) {
-	$classParts = explode('\\', $class);
-	unset($classParts[0]);
-	$classFile = __DIR__.implode('/', $classParts).'.php';
-	var_dump($classFile);
-	if (file_exists($classFile)) {
-		require($classFile);
+	if (strpos($class, 'common\\') === 0) {
+		$class = substr($class, 6);
+		$classFile = realpath(__DIR__.'/'.str_replace('\\', DIRECTORY_SEPARATOR, $class).'.php');
+		if (file_exists($classFile)) {
+			require($classFile);
+		}
+		unset($classFile);
 	}
-	unset($classParts, $classFile);
 });
-
-
-$ini = parse_ini_file('config/init.ini', TRUE);
-
-$ini['root_dir']['dir'] = __DIR__;
-
-\common\Config::init($ini);

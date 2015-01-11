@@ -1,16 +1,16 @@
 <?php
 
-namespace \common\collections;
+namespace common\collections;
 
 
-class OptionGroupStorage extends SplObjectStorage {
+class OptionGroupStorage extends \SplObjectStorage {
 	protected $objectType = null;
 	
 	/**
 	 * Add all OptionGroupStorage items
 	 * @param OptionGroupStorage $storage - an instance of OptionGroupStorage
 	 */
-	public function addAll(OptionGroupStorage $storage) {
+	public function addAll($storage) {
 		parent::addAll($storage);
 	}
 	
@@ -30,7 +30,7 @@ class OptionGroupStorage extends SplObjectStorage {
 	 * Will remove all of stored items from $storage
 	 * @param $storage an object of OptionGroupStorage
 	 */
-	public function removeAll(OptionGroupStorage $storage) {
+	public function removeAll($storage) {
 		parent::removeAll($storage);
 	}
 	
@@ -38,7 +38,7 @@ class OptionGroupStorage extends SplObjectStorage {
 	 * Will remove all of stored items except items from $storage
 	 * @param $storage an object of OptionGroupStorage
 	 */
-	public function removeAllExcept(OptionGroupStorage $storage) {
+	public function removeAllExcept($storage) {
 		parent::removeAllExcept($storage);
 	}
 }

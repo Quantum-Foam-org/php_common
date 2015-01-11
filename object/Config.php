@@ -1,6 +1,6 @@
 <?php
 
-namespace \common\object;
+namespace common\object;
 
 
 class Config extends \ArrayObject {
@@ -20,7 +20,7 @@ class Config extends \ArrayObject {
 	public function offsetSet($offset, $value) {
 		if (property_exists($this, $offset)) {
 			if (isset($this->config[$offset][0])) {
-				if (!($this->$offset = filter_var($value, $this->config[$offset][0], (is_array($this->config[$offset][1]) ? $this->config[$offset][1] : array())))) {
+				if (!($this->$offset = filter_var($value, $this->config[$offset][0], (isset($this->config[$offset][1]) && is_array($this->config[$offset][1]) ? $this->config[$offset][1] : array())))) {
 					throw new \UnexpectedValueException('Invalid value, '.$value.', for offset '.$offset);
 				}
 			} else {

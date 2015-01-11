@@ -1,8 +1,8 @@
 <?php
 
-namespace \common\curl;
+namespace common\curl;
 
-use \common\collections\CurlOptionGroupStorage\Main as curlOptStorage;
+use \common\collections\CurlOptionGroupStorage as curlOptStorage;
 use \common\logging\Logger as Logger;
 
 
@@ -18,7 +18,7 @@ class Main {
 		    CURLINFO_NAMELOOKUP_TIME,
 		    CURLINFO_CONNECT_TIME,
 		   	CURLINFO_PRETRANSFER_TIME,
-		    CURLINFO_START_TRANSFER_TIME,
+		    //CURLINFO_START_TRANSFER_TIME,
 		    CURLINFO_REDIRECT_COUNT,
 		    CURLINFO_REDIRECT_TIME,
     		CURLINFO_REDIRECT_URL,
@@ -50,7 +50,7 @@ class Main {
 	 * @param boolean $mh TRUE to run a curl multi handle
 	 */
     public function __construct($mh = FALSE) {
-		$this->mh = $mh;
+		$this->reset($mh);
     }
     
     
@@ -74,7 +74,7 @@ class Main {
     public function create() {
 		$this->ch = curl_init();
 		if ($this->mh !== FALSE) {
-			if (!get_resource_type($this->mh) === 'curl_multi' || ($this->mh = curl_multi_init()) !== FALSE) {
+			if ((is_resource($this->mh) && !get_resource_type($this->mh) === 'curl_multi') || ($this->mh = curl_multi_init()) !== FALSE) {
 				$this->chs[] = $this->ch;
 		    	curl_multi_add_handle($this->mh, $this->ch);
 			}
@@ -109,23 +109,25 @@ class Main {
 			if ($curlOpt->cName === CURLOPT_RETURNTRANSFER && $curlOpt->value === TRUE) {
 				$this->output = [];
 			}
-				
-			if (get_resource_type($ch) === 'curl' && in_array($ch, $this->chs, TRUE)) {
-				curl_setopt($ch, $opt->cName, $opt->value);
+			
+			if (is_resource($ch) && get_resource_type($ch) === 'curl' && in_array($ch, $this->chs, TRUE)) {
+				curl_setopt($ch, $curlOpt->cName, $curlOpt->value);
 				$this->ch = $ch;
 			} else if (strpos($curlOpt->cName, 'CURLMOPT_') === 0 && $this->mh !== FALSE) {
-				curl_multi_setopt($this->mh, $opt->cName, $opt->value);
+				curl_multi_setopt($this->mh, $curlOpt->cName, $curlOpt->value);
 			} else if ($ch === null) {
-				curl_setopt($this->ch, $opt->cName, $opt->value);
+				curl_setopt($this->ch, $curlOpt->cName, $curlOpt->value);
 			} else {
 				throw new InvalidArgumentException('Could not set curl option, is @param $ch invalid: '.var_export($ch, TRUE));
 			}
 				
 			$this->curlOptions->attach($curlOpt);
 			$result = TRUE;
-		} catch (UnexpectedValueException $ue) {
+		} catch (\UnexpectedValueException $ue) {
+			\common\logging\Error::handle($ue);
 			$result = FALSE;
-		} catch (RuntimeException $re) {
+		} catch (\RuntimeException $re) {
+			\common\logging\Error::handle($re);
 			$result = FALSE;
 		}
 		
@@ -164,7 +166,7 @@ class Main {
 		    do {
 				$result = curl_multi_exec($this->mh, $active);
 				if ($result > 0) {
-				    Logger::obj()->write('ERROR: ' . curl_multi_strerror($result), 1);
+				    Logger::obj()->write('ERROR: (FILE:'.__FILE__.') (LINE:'.__LINE__.')' . curl_multi_strerror($result), 1);
 				}
 				if (curl_multi_select($this->mh) == -1) {
 				    break;
@@ -176,7 +178,8 @@ class Main {
 		} else {
 		    $result = curl_exec($this->ch);
 		    if (($er = curl_errno($this->ch)) !== 0) {
-		    	Logger::obj()->write('ERROR: ' . curl_strerror($er), 1);
+		    	var_dump($this->curlOptions);die;
+		    	Logger::obj()->write('ERROR: (FILE:'.__FILE__.') (LINE:'.__LINE__.')' . curl_strerror($er), 1);
 		    }
 		    if (is_array($this->output)) {
 		    	$this->output[] = array(curl_getinfo($this->ch, CURLINFO_EFFECTIVE_URL), $result);
