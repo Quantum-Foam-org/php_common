@@ -197,22 +197,25 @@ class Main {
    		return $this->output;
    	}
    	
+   	public function close() {
+   		if ($this->mh !== FALSE) {
+   			foreach ($this->chs as $ch) {
+   				curl_multi_remove_handle($this->mh, $ch);
+   				curl_close($ch);
+   			}
+   			curl_multi_close($this->mh);
+   			unset($ch);
+   		} else if (is_resource($this->ch) && get_resource_type($this->ch) === 'curl') {
+   			curl_close($this->ch);
+   		}
+   		unset($this->chs, $this->ch, $this->mh, $this->curlOptions, $this->info, $this->infoOptions, $this->output);
+   	}
+   	
     
    	/**
    	 * Closes all curl handles
    	 */
     public function __destroy() {
-		if ($this->mh !== FALSE) {
-		    foreach ($this->chs as $ch) {
-				curl_multi_remove_handle($this->mh, $ch);
-				curl_close($ch);
-		    }
-		    curl_multi_close($this->mh);
-		    unset($ch);
-		} else {
-		    curl_close($this->ch);
-		}
-		
-		unset($this->chs, $this->ch, $this->mh, $this->curlOptions, $this->info, $this->infoOptions, $this->output);
+		$this->close();
     }
 }
