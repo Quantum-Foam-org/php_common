@@ -226,7 +226,7 @@ class Main extends \Iterator {
             do {
                 $result = curl_multi_exec($this->mh, $active);
                 if ($result > 0) {
-                    Logger::obj()->write('ERROR: (FILE:' . __FILE__ . ') (LINE:' . __LINE__ . ')' . curl_multi_strerror($result), 1);
+                    Logger::obj()->writeInfo(curl_multi_strerror($result), __FILE__, __LINE__, 1);
                 }
                 if (curl_multi_select($this->mh) == -1) {
                     break;
@@ -240,9 +240,7 @@ class Main extends \Iterator {
         } else {
             $result = curl_exec($this->ch);
             if (($er = curl_errno($this->ch)) !== 0) {
-                var_dump($this->curlOptions);
-                die;
-                Logger::obj()->write('ERROR: (FILE:' . __FILE__ . ') (LINE:' . __LINE__ . ')' . curl_strerror($er), 1);
+                Logger::obj()->writeInfo(curl_strerror($er), __FILE__, __LINE__, 1);
             }
             if (is_array($this->output)) {
                 $this->output[] = array(curl_getinfo($this->ch, CURLINFO_EFFECTIVE_URL), $result);

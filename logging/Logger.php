@@ -22,7 +22,12 @@ class Logger {
         }
         return self::$instance;
     }
-	
+    
+    public function writeDebug($message, $type = 0, $file, $line)
+    {
+        self::write('(FILE: '.$file.') (LINE: '.$line.'): '.$message, $type);
+    }
+    
     public function write($message, $type = 0) {
         if (\common\Config::$system['debug'] === "1") {
         	if (!self::$file_handle->flock(LOCK_EX)) {
