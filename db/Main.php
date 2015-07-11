@@ -81,41 +81,89 @@ class Main extends \PDO {
     /**
      * @param String $table - the name of the table to run the insert
      * @param Array $values - A key=>value pair of table field names and values
-     * @return mixed - lasst insert_id on success
+     * @return mixed - last insert_id on success
      */
-    public function insert($table, array $values) {
-        $stmt = $this->prepare('INSERT INTO ' . $table . ' (' . implode(', ', array_keys($values)) . ') VALUES(?'.str_repeat(', ?', count($values) - 1).')');
-        if ($stmt->exec($values)) {
-            $result = $this->lastInsertId();
-        } else {
-            $result = FALSE;
+    public function insert($table, array $values)
+    {
+        if (strlen($table) === 0)
+            throw new \UnexpectedValueException('$table must not be an empty string');
+        if (empty($values))
+            throw new \UnexpectedValueException('$values must not be an empty array');
+        
+        try
+        {
+            $stmt = $this->getSth('INSERT INTO ' . $table . ' (' . implode(', ', array_keys($values)) . ') VALUES(?'.str_repeat(', ?', count($values) - 1).')');
         }
-
-        return $result;
+        catch(\UnexpectedValueException $e)
+        {
+            throw $e;
+        }
+        catch (\RuntimeException $e)
+        {
+            throw $e;
+        }
+        finally
+        {
+            unset($stmt);
+        }
+        
+        return $this->lastInsertId();
     }
     
     public function update($table, array $values)
     {
-        $stmt = $this->prepare('UPDATE ' . $table . ' SET ' . implode(' = ? ,', array_keys($values)).' = ?');
-        if ($stmt->exec($values)) {
-            $result = $this->rowCount();
-        } else {
-            $result = FALSE;
+        if (strlen($table) === 0)
+            throw new \UnexpectedValueException('$table must not be an empty string');
+        if (empty($values))
+            throw new \UnexpectedValueException('$values must not be an empty array');
+        
+        try
+        {
+            $stmt = $this->getSth('UPDATE ' . $table . ' SET ' . implode(' = ? ,', array_keys($values)).' = ?');
+            $rowCount = $stmt->rowCount();
         }
-
-        return $result;
+        catch(\UnexpectedValueException $e)
+        {
+            throw $e;
+        }
+        catch (\RuntimeException $e)
+        {
+            throw $e;
+        }
+        finally
+        {
+            unset($stmt);
+        }
+        
+        return $rowCount;
     }
     
     public function delete($table, array $values)
     {
-        $stmt = $this->prepare('DELETE FROM ' . $table . ' WHERE ' . implode(' = ? AND ', array_keys($values)).'  = ?');
-        if ($stmt->exec($values)) {
-            $result = $this->rowCount();
-        } else {
-            $result = FALSE;
+        if (strlen($table) === 0)
+            throw new \UnexpectedValueException('$table must not be an empty string');
+        if (empty($values))
+            throw new \UnexpectedValueException('$values must not be an empty array');
+        
+        try
+        {
+            $stmt = $this->getSth('DELETE FROM ' . $table . ' WHERE ' . implode(' = ? AND ', array_keys($values)).'  = ?');
+            $rowCount = $stmt->rowCount();
+        }
+        catch(\UnexpectedValueException $e)
+        {
+            throw $e;
+        }
+        catch (\RuntimeException $e)
+        {
+            throw $e;
+        }
+        finally
+        {
+            unset($stmt);
         }
         
-        return $result;
+        return $rowCount;
     }
 
     /**
@@ -123,14 +171,21 @@ class Main extends \PDO {
      * @param Array $params - the params to run in a prepared statement
      * @return PDOStatement - the statement of a PDO query
      */
-    private function getSth($sql, array $params = array()) {
+    protected function getSth($sql, array $params = array())
+    {
+        if (strlen($sql) === 0)
+            throw new \UnexpectedValueException('$table must not be an empty string');
+        
         if (!empty($params)) {
             $sth = $this->prepare($sql);
             $sth->execute($params);
         } else {
             $sth = $this->query($sql);
         }
-
+        
+        if ($sth->errorCode() === 0)
+            throw new \RuntimeException('QUERY FAILED: '.$sth->debugDumpParams()."\nDRIVER ERROR: ".array_slice($sth->errorInfo(), 2, 1));
+        
         return $sth;
     }
 
