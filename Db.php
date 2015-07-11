@@ -1,6 +1,6 @@
 <?php
 
-namespace \local;
+namespace common;
 
 /**
  * Class which extends PHP's PDO.
@@ -8,7 +8,7 @@ namespace \local;
  * This should be used when conducting database queries
  */
 
-class Db extends PDO {
+class Db extends \PDO {
     private static $dbh = null; /// the PDO database handler
     
 	
@@ -25,10 +25,10 @@ class Db extends PDO {
         if (!self::$dbh) {
             try {
                 self::$dbh = new db(DB_DSN, DB_USER_NAME, DB_USER_PASS);
-            } catch (PDOException $e) {
+            } catch (\PDOException $e) {
                 throw $e;
             }
-            self::$dbh->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            self::$dbh->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
         }
         
         return self::$dbh;
@@ -65,7 +65,7 @@ class Db extends PDO {
 	 * @return Array
 	 */
 	public function get_one($sql, array $params = array(), $cursor = 0) {
-        return $this->get_sth($sql, $params)->fetch(PDO::FETCH_ASSOC, PDO::FETCH_ORI_NEXT, $cursor);
+        return $this->get_sth($sql, $params)->fetch(\PDO::FETCH_ASSOC, \PDO::FETCH_ORI_NEXT, $cursor);
 	}
 	
 	
