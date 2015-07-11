@@ -23,9 +23,11 @@ class Logger {
         return self::$instance;
     }
     
-    public function writeDebug($message, $type = 0, $file, $line)
+    public function writeDebug($message, $type = 0)
     {
-        self::write('(FILE: '.$file.') (LINE: '.$line.'): '.$message, $type);
+        $debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
+        
+        self::write('(FILE: '.$debug[0]['file'].') (LINE: '.$debug[0]['line'].'): '.$message, $type);
     }
     
     public function write($message, $type = 0) {
@@ -47,7 +49,7 @@ class Logger {
 	            }
 				
 	            self::$file_handle->fwrite(vsprintf("[%s]\t\t-\t\t%s - %s \n", array($date, $type, $message)));
-			}
+                }
         }
     }
 }

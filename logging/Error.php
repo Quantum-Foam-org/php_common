@@ -8,6 +8,3 @@ class Error {
 		Logger::obj()->write(get_class($e).' (FILE: '.$e->getFile().') (LINE: '.$e->getLine().'): '.$e->getMessage(), -1);
 	}
 }
-
-
-?>
