@@ -3,28 +3,67 @@
 namespace common;
 
 // do configuration of the application
-class Config {
-    private static $valid_types = array(
+class Config
+{
+
+    private $valid_types = array(
         'log',
-        'system'
+        'system',
+        'php_value'
     );
-    public static $log_file;
-    public static $system = array();
+    private $log_file;
+    private $system = array();
+    private $php_value = array();
+
+    private static $instance = null;
     
-    public static function init(array $config) {
-		foreach (self::$valid_types as $type) {
-			call_user_func('self::set_'.strtolower($type), $config[$type]);
-		}
-    }
-    
-    private static function set_log(array $log_info) {
-        // test for writability
-        if (is_writable(\realpath(\dirname($log_info['file'])))) {
-            self::$log_file = $log_info['file'];
+    public static function obj($file = null)
+    {
+        if ($file === null)
+        {
+            $file = new \SplFileInfo($file);
+
+            if (!$file->isReadable())
+                throw new \RuntimeException('File does not exist');
+
+            $config = parse_ini_file($file->getRealPath(), TRUE);
+
+            self::$instance = new Config();
+
+            foreach ($config as $type => $value)
+            {
+                if (in_array($type, self::$valid_types))
+                {
+                    self::$instance->{'set_' . strtolower($type)}($config[$type]);
+                }
+            }
+            unset($file, $config, $type, $value);
         }
+        return self::$instance;
     }
-    
-    private static function set_system(array $system_info) {
-        self::$system = $system_info;
+
+    private function set_log(array $logInfo)
+    {
+        $file = new \SplFileInfo($logInfo['file']);
+        
+        if (!$file->isWritable())
+            throw new \RuntimeException('File does not exist');
+        
+        self::$log_file = $file->getRealPath();
     }
+
+    private function set_system(array $system_info)
+    {
+        $this->system = $system_info;
+    }
+
+    public function __get($name)
+    {
+        if (!in_array($this->valid_types, $name))
+        {
+            throw new \UnexpectedValueException('Property does not exist');
+        }
+        return $this->$name;
+    }
+
 }

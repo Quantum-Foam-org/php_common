@@ -16,8 +16,8 @@ class Logger {
     public static function obj() {
 		
         if (self::$instance === null) {
-            self::$instance = new logger();
-            self::$file_handle = new \SplFileObject(\common\Config::$log_file, 'a+');
+            self::$instance = new Logger();
+            self::$file_handle = new \SplFileObject(\common\Config::obj()->logFile, 'a+');
             self::$date = new \DateTime('now');
         }
         return self::$instance;
@@ -31,7 +31,7 @@ class Logger {
     }
     
     public function write($message, $type = 0) {
-        if (\common\Config::$system['debug'] === "1") {
+        if (\common\Config::obj()->system['debug'] === "1") {
         	if (!self::$file_handle->flock(LOCK_EX)) {
         		usleep(1);
 				$this->write($message, $type);
