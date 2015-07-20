@@ -7,10 +7,10 @@ namespace \common\query;
  */
 class Main {
 	
-	private $fieldDef = array();
-	private $selectFields = array();
-	private $tables = array();
-	private $joins = array();
+	private $fieldDef = [];
+	private $selectFields = [];
+	private $tables = [];
+	private $joins = [];
 	private $order = '';
 	private $limit = '';
 	private $query = '';

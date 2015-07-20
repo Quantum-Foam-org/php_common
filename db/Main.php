@@ -23,10 +23,11 @@ class Main extends \PDO {
         if (!self::$dbh) {
             try {
                 self::$dbh = new db(DB_DSN, DB_USER_NAME, DB_USER_PASS);
+                self::$dbh->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+                self::$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             } catch (\PDOException $e) {
-                throw $e;
+                self::$dbh = FALSE;
             }
-            self::$dbh->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
         }
         
         return self::$dbh;
@@ -85,18 +86,9 @@ class Main extends \PDO {
      */
     public function insert($table, array $values)
     {
-        if (strlen($table) === 0)
-            throw new \UnexpectedValueException('$table must not be an empty string');
-        if (empty($values))
-            throw new \UnexpectedValueException('$values must not be an empty array');
-        
         try
         {
             $stmt = $this->getSth('INSERT INTO ' . $table . ' (' . implode(', ', array_keys($values)) . ') VALUES(?'.str_repeat(', ?', count($values) - 1).')');
-        }
-        catch(\UnexpectedValueException $e)
-        {
-            throw $e;
         }
         catch (\RuntimeException $e)
         {
@@ -112,19 +104,10 @@ class Main extends \PDO {
     
     public function update($table, array $values)
     {
-        if (strlen($table) === 0)
-            throw new \UnexpectedValueException('$table must not be an empty string');
-        if (empty($values))
-            throw new \UnexpectedValueException('$values must not be an empty array');
-        
         try
         {
             $stmt = $this->getSth('UPDATE ' . $table . ' SET ' . implode(' = ? ,', array_keys($values)).' = ?');
             $rowCount = $stmt->rowCount();
-        }
-        catch(\UnexpectedValueException $e)
-        {
-            throw $e;
         }
         catch (\RuntimeException $e)
         {
@@ -140,19 +123,10 @@ class Main extends \PDO {
     
     public function delete($table, array $values)
     {
-        if (strlen($table) === 0)
-            throw new \UnexpectedValueException('$table must not be an empty string');
-        if (empty($values))
-            throw new \UnexpectedValueException('$values must not be an empty array');
-        
         try
         {
             $stmt = $this->getSth('DELETE FROM ' . $table . ' WHERE ' . implode(' = ? AND ', array_keys($values)).'  = ?');
             $rowCount = $stmt->rowCount();
-        }
-        catch(\UnexpectedValueException $e)
-        {
-            throw $e;
         }
         catch (\RuntimeException $e)
         {
@@ -173,12 +147,16 @@ class Main extends \PDO {
      */
     protected function getSth($sql, array $params = array())
     {
-        if (strlen($sql) === 0)
-            throw new \UnexpectedValueException('$table must not be an empty string');
-        
         if (!empty($params)) {
-            $sth = $this->prepare($sql);
-            $sth->execute($params);
+            try
+            {
+                $sth = $this->prepare($sql);
+                $sth->execute($params);
+            }
+            catch(\PDOException $e)
+            {
+                Logger::obj()->writeException($e);
+            }
         } else {
             $sth = $this->query($sql);
         }

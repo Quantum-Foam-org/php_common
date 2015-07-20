@@ -12,8 +12,8 @@ class Config
         'php_value'
     );
     private $log_file;
-    private $system = array();
-    private $php_value = array();
+    private $system = [];
+    private $php_value = [];
 
     private static $instance = null;
     
@@ -55,6 +55,21 @@ class Config
     private function set_system(array $system_info)
     {
         $this->system = $system_info;
+    }
+
+    private function set_php_value(array $phpValue)
+    {
+        foreach ($phpValue as $k => $value)
+        {
+            if (ini_set($k, $value) !== FALSE)
+            {
+                $this->php_value[$k] = $value;
+            } else
+            {
+                Logger::obj()->writeDebug('Cannot set PHP VALUE: ' . $k . ' -> ' . $value, 1);
+            }
+        }
+        unset($k, $value);
     }
 
     public function __get($name)

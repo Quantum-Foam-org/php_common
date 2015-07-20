@@ -17,24 +17,28 @@ class Logger {
 		
         if (self::$instance === null) {
             self::$instance = new Logger();
-            self::$file_handle = new \SplFileObject(\common\Config::obj()->logFile, 'a+');
+            self::$file_handle = new \SplFileObject(\common\Config::obj()->logFile, 'a');
             self::$date = new \DateTime('now');
         }
         return self::$instance;
+    }
+    
+    public function writeException(\Exception $e, $type = -1) {
+        $this->write(get_class($e).' (FILE: '.$e->getFile().') (LINE: '.$e->getLine().'): '.$e->getMessage(), $type);
     }
     
     public function writeDebug($message, $type = 0)
     {
         $debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
         
-        self::write('(FILE: '.$debug[0]['file'].') (LINE: '.$debug[0]['line'].'): '.$message, $type);
+        $this->write('(FILE: '.$debug[0]['file'].') (LINE: '.$debug[0]['line'].'): '.$message, $type);
     }
     
     public function write($message, $type = 0) {
         if (\common\Config::obj()->system['debug'] === "1") {
         	if (!self::$file_handle->flock(LOCK_EX)) {
         		usleep(1);
-				$this->write($message, $type);
+                        $this->write($message, $type);
         	} else {
 	            if (isset(self::$type[$type])) {
 	                $type = self::$type[$type];
@@ -47,7 +51,7 @@ class Logger {
 	            if (is_array($message)) {
 	                $message = var_export($message, 1);
 	            }
-				
+                    
 	            self::$file_handle->fwrite(vsprintf("[%s]\t\t-\t\t%s - %s \n", array($date, $type, $message)));
                 }
         }
