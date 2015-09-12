@@ -22,7 +22,7 @@ class Main extends \PDO {
     public static function obj() {
         if (!self::$dbh) {
             try {
-                self::$dbh = new db(DB_DSN, DB_USER_NAME, DB_USER_PASS);
+                self::$dbh = new \common\db\Main(DB_DSN, DB_USER_NAME, DB_USER_PASS);
                 self::$dbh->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
                 self::$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             } catch (\PDOException $e) {
@@ -88,7 +88,7 @@ class Main extends \PDO {
     {
         try
         {
-            $stmt = $this->getSth('INSERT INTO ' . $table . ' (' . implode(', ', array_keys($values)) . ') VALUES(?'.str_repeat(', ?', count($values) - 1).')');
+            $stmt = $this->getSth('INSERT INTO ' . $table . ' (' . implode(', ', array_keys($values)) . ') VALUES(?'.str_repeat(', ?', count($values) - 1).')', $values);
         }
         catch (\RuntimeException $e)
         {
@@ -151,11 +151,11 @@ class Main extends \PDO {
             try
             {
                 $sth = $this->prepare($sql);
-                $sth->execute($params);
+                $sth->execute(array_values($params));
             }
             catch(\PDOException $e)
             {
-                Logger::obj()->writeException($e);
+                \common\logging\Logger::obj()->writeException($e);
             }
         } else {
             $sth = $this->query($sql);

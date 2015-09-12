@@ -17,7 +17,7 @@ class Logger {
 		
         if (self::$instance === null) {
             self::$instance = new Logger();
-            self::$file_handle = new \SplFileObject(\common\Config::obj()->logFile, 'a');
+            self::$file_handle = \common\Config::obj()->log_file;
             self::$date = new \DateTime('now');
         }
         return self::$instance;

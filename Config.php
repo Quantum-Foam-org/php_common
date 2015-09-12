@@ -9,7 +9,7 @@ class Config
     private $valid_types = array(
         'log',
         'system',
-        'php_value'
+        'php'
     );
     private $log_file;
     private $system = [];
@@ -19,20 +19,21 @@ class Config
     
     public static function obj($file = null)
     {
-        if ($file === null)
+        if ($file !== null)
         {
             $file = new \SplFileInfo($file);
-
+            
             if (!$file->isReadable())
                 throw new \RuntimeException('File does not exist');
 
+     
             $config = parse_ini_file($file->getRealPath(), TRUE);
 
             self::$instance = new Config();
 
             foreach ($config as $type => $value)
             {
-                if (in_array($type, self::$valid_types))
+                if (in_array($type, self::$instance->valid_types))
                 {
                     self::$instance->{'set_' . strtolower($type)}($config[$type]);
                 }
@@ -44,19 +45,24 @@ class Config
 
     private function set_log(array $logInfo)
     {
-        $file = new \SplFileInfo($logInfo['file']);
+        $file = new \SplFileObject($logInfo['file'], 'a');
         
         if (!$file->isWritable())
             throw new \RuntimeException('File does not exist');
         
-        self::$log_file = $file->getRealPath();
+        $this->log_file = $file;
     }
 
     private function set_system(array $system_info)
     {
+        if (!isset($system_info['timezone']))
+        {
+            $system_info['timezone'] = 'UTC';
+        }
         $this->system = $system_info;
+        date_default_timezone_set($system_info['timezone']);
     }
-
+    
     private function set_php_value(array $phpValue)
     {
         foreach ($phpValue as $k => $value)
@@ -64,21 +70,21 @@ class Config
             if (ini_set($k, $value) !== FALSE)
             {
                 $this->php_value[$k] = $value;
-            } else
+            }
+            else
             {
                 Logger::obj()->writeDebug('Cannot set PHP VALUE: ' . $k . ' -> ' . $value, 1);
             }
         }
         unset($k, $value);
     }
-
+    
     public function __get($name)
     {
-        if (!in_array($this->valid_types, $name))
+        if (!property_exists($this, $name))
         {
-            throw new \UnexpectedValueException('Property does not exist');
+            throw new \UnexpectedValueException('Property '.$name.' does not exist');
         }
         return $this->$name;
     }
-
 }

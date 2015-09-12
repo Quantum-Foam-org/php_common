@@ -206,12 +206,14 @@ class Main implements \Iterator {
      */
     public function info() {
         $info = [];
-        foreach ($this->chs as $ch) {
-            $info[] = array_map(function($v) use($ch) {
-                return array($v, curl_getinfo($ch, $v));
-            }, $this->infoOptions);
+        foreach ($this->chs as $i => $ch) {
+            foreach ($this->infoOptions as $option)
+            {
+                $info[$i][$option] = array($option, curl_getinfo($ch, $option));
+            }
         }
-
+        unset($ch, $i, $option);
+        
         return $info;
     }
 
