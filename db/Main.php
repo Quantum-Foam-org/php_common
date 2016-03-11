@@ -145,7 +145,7 @@ class Main extends \PDO {
      * @param Array $params - the params to run in a prepared statement
      * @return PDOStatement - the statement of a PDO query
      */
-    protected function getSth($sql, array $params = array())
+    public function getSth($sql, array $params = array())
     {
         if (!empty($params)) {
             try
@@ -161,8 +161,8 @@ class Main extends \PDO {
             $sth = $this->query($sql);
         }
         
-        if ($sth->errorCode() === 0)
-            throw new \RuntimeException('QUERY FAILED: '.$sth->debugDumpParams()."\nDRIVER ERROR: ".array_slice($sth->errorInfo(), 2, 1));
+        if ((int)$sth->errorCode() !== 0)
+            throw new \RuntimeException('QUERY FAILED: '.vsprintf(str_replace('?', '\'%s\'', $sth->queryString), $params). "\nParams: ". implode("\n", $params)."\nDRIVER ERROR: ". $sth->errorCode());
         
         return $sth;
     }
