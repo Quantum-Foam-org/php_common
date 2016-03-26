@@ -25,6 +25,8 @@ class Logger {
     
     public function writeException(\Exception $e, $type = -1) {
         $this->write(get_class($e).' (FILE: '.$e->getFile().') (LINE: '.$e->getLine().'): '.$e->getMessage(), $type);
+    	
+        return $e->getLine();
     }
     
     public function writeDebug($message, $type = 0)
@@ -32,6 +34,8 @@ class Logger {
         $debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
         
         $this->write('(FILE: '.$debug[0]['file'].') (LINE: '.$debug[0]['line'].'): '.$message, $type);
+    
+        return $debug[0]['line'];
     }
     
     public function write($message, $type = 0) {
