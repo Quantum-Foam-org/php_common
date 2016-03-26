@@ -94,7 +94,7 @@ class Main extends \PDO {
 
         return $val;
     }
-    
+
     /**
      * @param String $table - the name of the table to run the insert
      * @param Array $values - A key=>value pair of table field names and values
@@ -111,10 +111,10 @@ class Main extends \PDO {
         } finally {
             unset($stmt);
         }
-        
+
         return $this->lastInsertId();
     }
-    
+
     public function update($table, array $values) {
         try {
             $stmt = $this->getSth('UPDATE `' . $table . '` SET `' . implode('` = ? , `', array_keys($values)) . '` = ?', $values);
@@ -124,10 +124,10 @@ class Main extends \PDO {
         } finally {
             unset($stmt);
         }
-        
+
         return $rowCount;
     }
-    
+
     public function delete($table, array $values) {
         try {
             $stmt = $this->getSth('DELETE FROM `' . $table . '` WHERE `' . implode('` = ? AND `', array_keys($values)) . '`  = ?', $values);
@@ -146,12 +146,7 @@ class Main extends \PDO {
      * @param Array $params - the params to run in a prepared statement
      * @return PDOStatement - the statement of a PDO query
      */
-<<<<<<< HEAD
     public function getSth($sql, array $params = array()) {
-=======
-    public function getSth($sql, array $params = array())
-    {
->>>>>>> 854f35583f16c13949f7b9c74069b3beeaafa8ce
         if (!empty($params)) {
             try {
                 $sth = $this->prepare($sql);
@@ -162,18 +157,11 @@ class Main extends \PDO {
         } else {
             $sth = $this->query($sql);
         }
-<<<<<<< HEAD
 
         if ($sth->errorCode() !== '00000') {
-            throw new \RuntimeException('QUERY FAILED: ' . var_export($sth->debugDumpParams(), 1) . "\nDRIVER ERROR: " . var_export($sth->errorInfo(), 1) . "\nQUERY SQL: ".$sth->queryString);
+            throw new \RuntimeException('QUERY FAILED: ' . var_export($sth->debugDumpParams(), 1) . "\nDRIVER ERROR: " . var_export($sth->errorInfo(), 1) . "\nQUERY SQL: " . $sth->queryString);
         }
 
-=======
-        
-        if ((int)$sth->errorCode() !== 0)
-            throw new \RuntimeException('QUERY FAILED: '.vsprintf(str_replace('?', '\'%s\'', $sth->queryString), $params). "\nParams: ". implode("\n", $params)."\nDRIVER ERROR: ". $sth->errorCode());
-        
->>>>>>> 854f35583f16c13949f7b9c74069b3beeaafa8ce
         return $sth;
     }
 
