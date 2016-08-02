@@ -1,21 +1,36 @@
 <?php
 
-namespace \common\xml;
+namespace common\xml;
 
-class RssRead extends DomDocument {
+use \common\collections\RssItems as rssItems;
+use \common\logging\Logger as Logger;
+
+
+class RssRead extends XmlRead {
 	private $url = null;
+	private $rssItems = [];
 	
-	public function __construct($version = '1.0', $encoding = 'UTF-8') {
-		
-		
-		parent::__construct($version, $encoding);
+	private function getNodes() {
+		return $this->getElementsByTagName('item');
 	}
 	
-	public function setUrl($url) {
-		$this->url = filter_var($url, FILTER_VALIDATE_URL);
+	private function getItem() {
+		foreach ($this->getNodes() as $xmlItem) {
+			$rssItems = $this->rssItems[] = new RssItems();
+			foreach ($xmlItem->childNodes as $childNode) {
+				$rssItem = new RssItem();
+				$rssItem->nodeName = $childNode->nodeName;
+				$rssItem->textContent = $childNode->textContent;
+				$rssItems->attach($rssItem);
+			}
+		}
+		unset($xmlItem);
 	}
 	
-	public function fetch() {
-		
+	public function getItems() {
+		if (count($this->rssItems) === 0) {
+			$this->getItem();
+		}
+		return $this->rssItems;
 	}
 }
