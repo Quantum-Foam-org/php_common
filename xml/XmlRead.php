@@ -50,6 +50,9 @@ class XmlRead extends \DomDocument
     
     public function __destruct()
     {
-        unset($this->xmlItems, $this->url);
+        foreach ($this->xmlItems as &$item) {
+            $item->removeAll($item);
+        }
+        unset($this->xmlItems, $this->url, $item);
     }
 }

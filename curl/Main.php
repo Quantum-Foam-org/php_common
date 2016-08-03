@@ -231,6 +231,7 @@ class Main implements \Iterator
      */
     public function resetOptions()
     {
+        $this->curlOptions->removeAll($this->curlOptions);
         $this->curlOptions = new CurlOptionGroupStorage();
     }
 
