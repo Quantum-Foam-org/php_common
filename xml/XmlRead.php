@@ -1,21 +1,24 @@
 <?php
 
-namespace \common\xml;
+namespace common\xml;
 
-class RssRead extends DomDocument {
+class XmlRead extends \DomDocument {
 	private $url = null;
 	
-	public function __construct($version = '1.0', $encoding = 'UTF-8') {
+	public static function readFromUrl($url) {
+		$url = \filter_var($url, FILTER_VALIDATE_URL);
 		
 		
-		parent::__construct($version, $encoding);
-	}
-	
-	public function setUrl($url) {
-		$this->url = filter_var($url, FILTER_VALIDATE_URL);
-	}
-	
-	public function fetch() {
+		if ($url !== FALSE) {
+			$cl = \get_called_class();
+			$xmlRead = new $cl;
+			$xmlRead->load($url, LIBXML_NOBLANKS);
+		} else {
+			$xmlRead = null;
+		}
 		
+		unset($url);
+		
+		return $xmlRead;
 	}
 }

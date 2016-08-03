@@ -7,7 +7,6 @@ use \common\logging\Logger as Logger;
 
 
 class RssRead extends XmlRead {
-	private $url = null;
 	private $rssItems = [];
 	
 	private function getNodes() {
@@ -21,7 +20,11 @@ class RssRead extends XmlRead {
 				$rssItem = new RssItem();
 				$rssItem->nodeName = $childNode->nodeName;
 				$rssItem->textContent = $childNode->textContent;
-				$rssItems->attach($rssItem);
+				try {
+					$rssItems->attach($rssItem);
+				} catch (\UnexpectedValueException $ue) {
+					\common\logging\Logger::obj()->writeException($e);
+				}
 			}
 		}
 		unset($xmlItem);
@@ -32,5 +35,9 @@ class RssRead extends XmlRead {
 			$this->getItem();
 		}
 		return $this->rssItems;
+	}
+	
+	public function __destruct() {
+		$this->rssItems = [];
 	}
 }
