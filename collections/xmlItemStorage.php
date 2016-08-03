@@ -2,8 +2,8 @@
 
 namespace common\collections;
 
-use \common\xml\RssItem;
+use \common\xml\XmlItem;
 
-class RssItems extends \common\collections\OptionGroupStorage {
-	protected $objectType = '\common\xml\RssItem';
+class xmlItemStorage extends \common\collections\OptionGroupStorage {
+	protected $objectType = '\common\xml\XmlItem';
 }

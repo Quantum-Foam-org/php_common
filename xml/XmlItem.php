@@ -4,7 +4,7 @@ namespace common\xml;
 
 use \common\object\Config as objectConfig;
 
-class RssItem extends objectConfig {
+class XmlItem extends objectConfig {
 	protected $nodeName, $textContent;
 	protected $config = array(
 			'nodeName' => array(FILTER_SANITIZE_FULL_SPECIAL_CHARS),

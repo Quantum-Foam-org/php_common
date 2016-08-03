@@ -8,8 +8,8 @@ try {
 } catch (\RuntimeException $re) {
 	echo $re->getMessage();
 }
-$rss = \common\xml\RssRead::readFromUrl("http://news.php.net/group.php?group=php.announce&format=rss");
-foreach ($rss->getItems() as $node) {
+$rss = \common\xml\XmlRead::readFromUrl("http://news.php.net/group.php?group=php.announce&format=rss");
+foreach ($rss->getNodes('item') as $node) {
 	foreach ($node as $item) {
 		var_dump($item->nodeName, $item->textContent);
 	}
