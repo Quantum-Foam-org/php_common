@@ -73,6 +73,7 @@ class Main implements \Iterator
         $this->mh = $mh;
         $this->chs = [];
         $this->ch = null;
+        $this->curlOptions = new CurlOptionGroupStorage();
         $this->resetOptions();
         $this->output = FALSE;
     }
