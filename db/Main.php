@@ -62,21 +62,17 @@ class Main extends \PDO {
         return $stmt->fetchAll();
     }
 
+    public function closeCursor(\PDOStatement $stmt) {
+        return $stmt->closeCursor();
+    }
+    
     /**
      * @param String $sql - The sql to run
      * @param Array $params - the params to run in a prepared statement
      * @param Integer $cursor - cursor position, the default is 0
      * @return Array
      */
-    public function getOne($sql, array $params = array(), $cursor = 0) {
-        try {
-            $stmt = $this->getSth($sql, $params);
-        } catch (\RuntimeException $e) {
-            throw $e;
-        } finally {
-            unset($stmt);
-        }
-
+    public function getOne(\PDOStatement $stmt, $cursor = 0) {
         return $stmt->fetch($this->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE), \PDO::FETCH_ORI_NEXT, $cursor);
     }
 
@@ -86,7 +82,7 @@ class Main extends \PDO {
      * @param Integer $cursor - cursor position, the default is 0
      * @return Scalar
      */
-    public function getVal($sql, array $params = array(), $cursor = 0) {
+    public function getVal(\PDOStatement $stmt, $cursor = 0) {
         if (($row = $this->getOne($sql, $params, $cursor))) {
             $val = array_pop($row);
         }
@@ -103,9 +99,9 @@ class Main extends \PDO {
     public function insert($table, array $values, array $placeholders = null) {
         try {
             if (empty($placeholders)) {
-                $placeholders = array_fill(0, count($values), '?');
+                $placeholders = \array_fill(0, \count($values), '?');
             }
-            $stmt = $this->getSth('INSERT INTO `' . $table . '` (`' . implode('`, `', array_keys($values)) . '`) VALUES(' . \implode(', ', $placeholders) . ')', $values);
+            $stmt = $this->getSth('INSERT INTO `' . $table . '` (`' . \implode('`, `', \array_keys($values)) . '`) VALUES(' . \implode(', ', $placeholders) . ')', $values);
         } catch (\RuntimeException $e) {
             throw $e;
         } finally {
@@ -115,9 +111,10 @@ class Main extends \PDO {
         return $this->lastInsertId();
     }
 
-    public function update($table, array $values) {
+    public function update($table, array $values, array $where = array()) {
         try {
-            $stmt = $this->getSth('UPDATE `' . $table . '` SET `' . implode('` = ? , `', array_keys($values)) . '` = ?', $values);
+            $stmt = $this->getSth('UPDATE `' . $table . '` SET `' . \implode('` = ? , `', \array_keys($values)) . '` = ? '
+                . (!empty($where) ? 'WHERE '. \implode('` = ? AND `', \array_keys($where)) . '`  = ?' : ''), \array_merge($values, $where));
             $rowCount = $stmt->rowCount();
         } catch (\RuntimeException $e) {
             throw $e;
@@ -130,7 +127,7 @@ class Main extends \PDO {
 
     public function delete($table, array $values) {
         try {
-            $stmt = $this->getSth('DELETE FROM `' . $table . '` WHERE `' . implode('` = ? AND `', array_keys($values)) . '`  = ?', $values);
+            $stmt = $this->getSth('DELETE FROM `' . $table . '` WHERE `' . \implode('` = ? AND `', \array_keys($values)) . '`  = ?', $values);
             $rowCount = $stmt->rowCount();
         } catch (\RuntimeException $e) {
             throw $e;
@@ -149,7 +146,7 @@ class Main extends \PDO {
     public function getSth($sql, array $params = array()) {
         if (!empty($params)) {
             try {
-                $sth = $this->prepare($sql);
+                $sth = $this->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
                 $sth->execute(array_values($params));
             } catch (\PDOException $e) {
                 \common\logging\Logger::obj()->writeException($e);
@@ -159,7 +156,7 @@ class Main extends \PDO {
         }
 
         if ($sth->errorCode() !== '00000') {
-            throw new \RuntimeException('QUERY FAILED: ' . var_export($sth->debugDumpParams(), 1) . "\nDRIVER ERROR: " . var_export($sth->errorInfo(), 1) . "\nQUERY SQL: " . $sth->queryString);
+            throw new \RuntimeException('QUERY FAILED: ' . \var_export($sth->debugDumpParams(), 1) . "\nDRIVER ERROR: " . \var_export($sth->errorInfo(), 1) . "\nQUERY SQL: " . $sth->queryString);
         }
 
         return $sth;
