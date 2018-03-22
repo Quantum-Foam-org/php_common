@@ -17,7 +17,7 @@ class Main extends \PDO {
 
     /**
      * Will return the connection to the database
-     * @return PDO 
+     * @return boolean|PDO 
      */
     public static function obj() {
         if (!self::$dbh) {
@@ -26,6 +26,8 @@ class Main extends \PDO {
                 self::$dbh->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
                 self::$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             } catch (\PDOException $e) {
+                throw $e;
+            } finally {
                 self::$dbh = FALSE;
             }
         }
@@ -62,6 +64,11 @@ class Main extends \PDO {
         return $stmt->fetchAll();
     }
 
+    /**
+     * closes the cursor so that execute can be called again
+     * @param \PDOStatement $stmt a PDOStatement object
+     * @return boolean
+     */
     public function closeCursor(\PDOStatement $stmt) {
         return $stmt->closeCursor();
     }
@@ -80,7 +87,7 @@ class Main extends \PDO {
      * @param String $sql - The sql to run
      * @param Array $params - the params to run in a prepared statement
      * @param Integer $cursor - cursor position, the default is 0
-     * @return Scalar
+     * @return scalar
      */
     public function getVal(\PDOStatement $stmt, $cursor = 0) {
         if (($row = $this->getOne($sql, $params, $cursor))) {
@@ -111,6 +118,13 @@ class Main extends \PDO {
         return $this->lastInsertId();
     }
 
+    /**
+     * @param String $table - the name of the table to run the insert
+     * @param array $values - A key=>value pair of table field names and values
+     * @param array $where - A key=>value pair of table field names and values
+     * @throws RuntimeException
+     * @return integer
+     */
     public function update($table, array $values, array $where = array()) {
         try {
             $stmt = $this->getSth('UPDATE `' . $table . '` SET `' . \implode('` = ? , `', \array_keys($values)) . '` = ? '
@@ -125,6 +139,13 @@ class Main extends \PDO {
         return $rowCount;
     }
 
+    /**
+     * 
+     * @param String $table - the name of the table to run the insert
+     * @param array $values - A key=>value pair of table field names and values
+     * @throws RuntimeException
+     * @return integer
+     */
     public function delete($table, array $values) {
         try {
             $stmt = $this->getSth('DELETE FROM `' . $table . '` WHERE `' . \implode('` = ? AND `', \array_keys($values)) . '`  = ?', $values);
