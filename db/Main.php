@@ -181,4 +181,7 @@ class Main extends \PDO {
         return $sth;
     }
 
+    public function __destruct() {
+        self::obj() = null;
+    }
 }

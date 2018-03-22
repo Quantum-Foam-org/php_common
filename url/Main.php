@@ -55,4 +55,8 @@ class Main {
 	public function __toString() {
 	    return $this->origUrl;
 	}
+	
+	public function __destruct() {
+	    unset($this->url, $this->origUrl);
+	}
 }
