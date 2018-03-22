@@ -4,16 +4,20 @@ namespace \common\url;
 
 class Main {
 	private $url = null;
+	private $origUrl = null;
 	
 	public function __construct($url) {
-		$url = filter_var($url, FILTER_VALIDATE_URL, array('fags' => FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED));
+		$this->origUrl = filter_var($url, FILTER_VALIDATE_URL, array('fags' => FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED));
 		if ($url !== FALSE) {
-			$this->url = parse_url($url);
+		    $this->url = parse_url($this->origUrl);
+			$this->sortQuery();
+			$this->setPath();
+		} else {
+		    throw new \UnexpectedValueException('Invaild URL:' . $url);
 		}
-		unset($url);
 	}
 	
-	public function sortQuery() {
+	private function sortQuery() {
 		if (isset($this->query)) {
 			parse_str($this->url['query'], $query);
 			sort($query, SORT_LOCALE_STRING | SORT_STRING);
@@ -46,5 +50,9 @@ class Main {
 		}
 		
 		return $result;
+	}
+	
+	public function __toString() {
+	    return $this->origUrl;
 	}
 }
