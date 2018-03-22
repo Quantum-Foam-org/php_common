@@ -76,21 +76,19 @@ class Main extends \PDO {
     /**
      * @param String $sql - The sql to run
      * @param Array $params - the params to run in a prepared statement
-     * @param Integer $cursor - cursor position, the default is 0
      * @return Array
      */
-    public function getOne(\PDOStatement $stmt, $cursor = 0) {
-        return $stmt->fetch($this->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE), \PDO::FETCH_ORI_NEXT, $cursor);
+    public function getOne(\PDOStatement $stmt) {
+        return $stmt->fetch($this->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE), \PDO::FETCH_ORI_NEXT);
     }
 
     /**
      * @param String $sql - The sql to run
      * @param Array $params - the params to run in a prepared statement
-     * @param Integer $cursor - cursor position, the default is 0
      * @return scalar
      */
-    public function getVal(\PDOStatement $stmt, $cursor = 0) {
-        if (($row = $this->getOne($sql, $params, $cursor))) {
+    public function getVal(\PDOStatement $stmt) {
+        if (($row = $this->getOne($sql, $params))) {
             $val = array_pop($row);
         }
         unset($row);
