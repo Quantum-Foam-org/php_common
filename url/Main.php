@@ -7,8 +7,8 @@ class Main {
 	private $origUrl = null;
 	
 	public function __construct($url) {
-		$this->origUrl = filter_var($url, FILTER_VALIDATE_URL, array('fags' => FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED));
-		if ($url !== FALSE) {
+	    $this->origUrl = filter_var($url, FILTER_VALIDATE_URL, array('fags' => FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED));
+	    if ($this->origUrl !== FALSE) {
 		    $this->url = parse_url($this->origUrl);
 			$this->sortQuery();
 			$this->setPath();
