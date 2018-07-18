@@ -2,7 +2,7 @@
 
 namespace common\curl;
 
-use \common\object\Config as objectConfig;
+use \common\obj\Config as objectConfig;
 
 
 define('common\curl\OPT_FILTER', 'CurlOptionFilter');

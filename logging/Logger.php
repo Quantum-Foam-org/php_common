@@ -23,7 +23,7 @@ class Logger {
         return self::$instance;
     }
     
-    public function writeException(\Exception $e, $type = -1) {
+    public function writeException(\Throwable $e, $type = -1) {
         $this->write(get_class($e).' (FILE: '.$e->getFile().') (LINE: '.$e->getLine().'): '.$e->getMessage(), $type);
     	
         return $e->getLine();

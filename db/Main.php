@@ -11,10 +11,6 @@ class Main extends \PDO {
 
     private static $dbh = null; /// the PDO database handler
 
-    public function __construct($dsn, $user, $pass) {
-        parent::__construct($dsn, $user, $pass);
-    }
-
     /**
      * Will return the connection to the database
      * @return boolean|PDO 
@@ -27,11 +23,9 @@ class Main extends \PDO {
                 self::$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             } catch (\PDOException $e) {
                 throw $e;
-            } finally {
-                self::$dbh = FALSE;
-            }
+            } 
         }
-
+        
         return self::$dbh;
     }
 
@@ -165,7 +159,7 @@ class Main extends \PDO {
     public function getSth($sql, array $params = array()) {
         if (!empty($params)) {
             try {
-                $sth = $this->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+                $sth = $this->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL));
                 $sth->execute(array_values($params));
             } catch (\PDOException $e) {
                 \common\logging\Logger::obj()->writeException($e);
@@ -182,6 +176,6 @@ class Main extends \PDO {
     }
 
     public function __destruct() {
-        self::obj() = null;
+        self::$dbh = null;
     }
 }

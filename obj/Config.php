@@ -1,12 +1,12 @@
 <?php
 
-namespace common\object;
+namespace common\obj;
 
 
 class Config extends \ArrayObject {
-	protected $config = array();
+	protected $config = [];
 	
-	public function offsetExists($offset) {
+	public function offsetExists($offset){
 		return property_exists($this, $offset);
 	}
 	
@@ -32,7 +32,9 @@ class Config extends \ArrayObject {
 	}
 	
 	public function offsetUnset($offset) {
-		$this->$offset = null;
+	    if ($this->offsetExists($offset)) {
+	       $this->$offset = null;
+	    }
 	}
 	
 	public function __get($offset) {
@@ -40,6 +42,15 @@ class Config extends \ArrayObject {
 	}
 	
 	public function __set($offset, $value) {
-		return $this->offsetSet($offset, $value);
+	   $this->offsetSet($offset, $value);
+	}
+	
+	/**
+	 * The keys of Config::$config array must be protected variables of the class.
+	 * This will return a list of class variables that will be configured using offsetSet.
+	 * @return array - keys of Config::$config
+	 */
+	protected function getConfiguredParams() : array {
+	   return array_keys($this->config); 
 	}
 }

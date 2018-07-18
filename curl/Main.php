@@ -216,11 +216,8 @@ class Main implements \Iterator
             
             $this->curlOptions->attach($curlOpt);
             $result = TRUE;
-        } catch (\UnexpectedValueException $ue) {
-            \common\logging\Error::handle($ue);
-            $result = FALSE;
-        } catch (\RuntimeException $re) {
-            \common\logging\Error::handle($re);
+        } catch (\RuntimeException | \UnexpectedValueException $e) {
+            \common\logging\Error::handle($e);
             $result = FALSE;
         }
         
