@@ -15,7 +15,7 @@ class Main extends \PDO {
      * Will return the connection to the database
      * @return boolean|PDO 
      */
-    public static function obj() {
+    public static function obj() : Main {
         if (!self::$dbh) {
             try {
                 self::$dbh = new \common\db\Main(DB_DSN, DB_USER_NAME, DB_USER_PASS);
@@ -46,7 +46,7 @@ class Main extends \PDO {
      * @param Array $params - the params to run in a prepared statement
      * @return Array 
      */
-    public function fetchAll($sql, array $params = array()) {
+    public function fetchAll(string $sql, array $params = array()) : array {
         try {
             $stmt = $this->getSth($sql, $params);
         } catch (\RuntimeException $e) {
@@ -63,7 +63,7 @@ class Main extends \PDO {
      * @param \PDOStatement $stmt a PDOStatement object
      * @return boolean
      */
-    public function closeCursor(\PDOStatement $stmt) {
+    public function closeCursor(\PDOStatement $stmt) : bool {
         return $stmt->closeCursor();
     }
     
@@ -93,9 +93,9 @@ class Main extends \PDO {
     /**
      * @param String $table - the name of the table to run the insert
      * @param Array $values - A key=>value pair of table field names and values
-     * @return mixed - last insert_id on success
+     * @return string - last insert_id
      */
-    public function insert($table, array $values, array $placeholders = null) {
+    public function insert(string $table, array $values, array $placeholders = null) : string {
         try {
             if (empty($placeholders)) {
                 $placeholders = \array_fill(0, \count($values), '?');
@@ -117,7 +117,7 @@ class Main extends \PDO {
      * @throws RuntimeException
      * @return integer
      */
-    public function update($table, array $values, array $where = array()) {
+    public function update($table, array $values, array $where = array()) : int {
         try {
             $stmt = $this->getSth('UPDATE `' . $table . '` SET `' . \implode('` = ? , `', \array_keys($values)) . '` = ? '
                 . (!empty($where) ? 'WHERE '. \implode('` = ? AND `', \array_keys($where)) . '`  = ?' : ''), \array_merge($values, $where));
@@ -138,7 +138,7 @@ class Main extends \PDO {
      * @throws RuntimeException
      * @return integer
      */
-    public function delete($table, array $values) {
+    public function delete($table, array $values) : int {
         try {
             $stmt = $this->getSth('DELETE FROM `' . $table . '` WHERE `' . \implode('` = ? AND `', \array_keys($values)) . '`  = ?', $values);
             $rowCount = $stmt->rowCount();
@@ -156,7 +156,7 @@ class Main extends \PDO {
      * @param Array $params - the params to run in a prepared statement
      * @return PDOStatement - the statement of a PDO query
      */
-    public function getSth($sql, array $params = array()) {
+    public function getSth($sql, array $params = array()) : \PDOStatement {
         if (!empty($params)) {
             try {
                 $sth = $this->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL));

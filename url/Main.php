@@ -22,7 +22,7 @@ class Main {
 		}
 	}
 	
-	private function sortQuery() {
+	private function sortQuery() : void {
 	    if (isset($this->url['query'])) {
 			parse_str($this->url['query'], $query);
 			foreach ($query as $i => $value) {
@@ -37,7 +37,7 @@ class Main {
 		}
 	}
 	
-	public function setPath() {
+	public function setPath() : void {
 	    if (isset($this->url['path'])) {
     		$path = explode('/', $this->url['path']);
     		if ($path !== false) {
@@ -51,7 +51,7 @@ class Main {
 	    }
 	}
 	
-	public function compare(\common\url\Main $url) {
+	public function compare(\common\url\Main $url) : bool {
 		return $this->url === $url->url;
 	}
 	
