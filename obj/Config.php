@@ -51,6 +51,23 @@ class Config extends \ArrayObject {
 	 * @return array - keys of Config::$config
 	 */
 	protected function getConfiguredParams() : array {
-	   return array_keys($this->config); 
+	    static $params = null;
+	    
+	    if ($params === null) {
+	        $params = array_keys($this->config);
+	    }
+	    
+	    return $params; 
+	}
+	
+	public function getArrayCopy() {
+	    $params = $this->getConfiguredParams();
+	    
+	    $arrayCopy = [];
+	    foreach ($params as $param) {
+	        $arrayCopy[$param] = $this->$param;
+	    }
+	    
+	    return $arrayCopy;
 	}
 }

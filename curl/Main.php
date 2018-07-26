@@ -170,7 +170,7 @@ class Main implements \Iterator
      * 
      * @param type $curlOptions            
      */
-    public function addOptions($curlOptions)
+    public function addOptions(array $curlOptions) : void
     {
         foreach ($this->chs as $chs) {
             foreach ($curlOptions as $curlConstant => $value) {
@@ -190,7 +190,7 @@ class Main implements \Iterator
      *            a curl resource
      * @throws InvalidArgumentException when no option can be set
      */
-    public function addOption($curlConstant, $value, $ch = null)
+    public function addOption(int $curlConstant, $value, $ch = null) : bool
     {
         $curlOpt = new Opt();
         try {
@@ -237,7 +237,7 @@ class Main implements \Iterator
      * Will return an array with information from curl_getinfo populated for each curl handle
      * return array
      */
-    public function info()
+    public function info() : array
     {
         $info = [];
         foreach ($this->chs as $i => $ch) {

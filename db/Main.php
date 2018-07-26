@@ -54,8 +54,6 @@ class Main extends \PDO {
             $stmt = $this->getSth($sql, $params);
         } catch (\RuntimeException $e) {
             throw $e;
-        } finally {
-            unset($stmt);
         }
 
         return $stmt->fetchAll();
@@ -106,8 +104,6 @@ class Main extends \PDO {
             $stmt = $this->getSth('INSERT INTO `' . $table . '` (`' . \implode('`, `', \array_keys($values)) . '`) VALUES(' . \implode(', ', $placeholders) . ')', $values);
         } catch (\RuntimeException $e) {
             throw $e;
-        } finally {
-            unset($stmt);
         }
 
         return $this->lastInsertId();
@@ -127,8 +123,6 @@ class Main extends \PDO {
             $rowCount = $stmt->rowCount();
         } catch (\RuntimeException $e) {
             throw $e;
-        } finally {
-            unset($stmt);
         }
 
         return $rowCount;
@@ -147,8 +141,6 @@ class Main extends \PDO {
             $rowCount = $stmt->rowCount();
         } catch (\RuntimeException $e) {
             throw $e;
-        } finally {
-            unset($stmt);
         }
 
         return $rowCount;

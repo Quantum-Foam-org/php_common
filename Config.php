@@ -11,22 +11,22 @@ class Config
         'system',
         'php'
     );
-    private $log_file;
+    private $log_file = null;
     private $system = [];
     private $php_value = [];
 
     private static $instance = null;
     
-    public static function obj($file = null)
+    public static function obj(?string $file = null) : Config
     {
         if ($file !== null)
         {
             $file = new \SplFileInfo($file);
             
-            if (!$file->isReadable())
-                throw new \RuntimeException('File does not exist');
-
-     
+            if (!$file->isReadable()) {
+                die('Configuration file not found: '. $file ."\n");
+            }
+            
             $config = parse_ini_file($file->getRealPath(), TRUE);
 
             self::$instance = new Config();
@@ -43,7 +43,7 @@ class Config
         return self::$instance;
     }
 
-    private function set_log(array $logInfo)
+    private function set_log(array $logInfo) : void
     {
         $file = new \SplFileObject($logInfo['file'], 'a');
         
@@ -53,7 +53,7 @@ class Config
         $this->log_file = $file;
     }
 
-    private function set_system(array $system_info)
+    private function set_system(array $system_info) : void
     {
         if (!isset($system_info['timezone']))
         {
@@ -63,7 +63,7 @@ class Config
         date_default_timezone_set($system_info['timezone']);
     }
     
-    private function set_php_value(array $phpValue)
+    private function set_php_value(array $phpValue) : void
     {
         foreach ($phpValue as $k => $value)
         {

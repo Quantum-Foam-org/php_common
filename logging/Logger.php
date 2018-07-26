@@ -13,23 +13,26 @@ class Logger {
     );
     protected static $instance = null;
 	
-    public static function obj() {
+    public static function obj() : Logger {
 		
         if (self::$instance === null) {
             self::$instance = new Logger();
             self::$file_handle = \common\Config::obj()->log_file;
+            if (!self::$file_handle instanceOf \SplFileObject) {
+                die("no log file configured\n");
+            }
             self::$date = new \DateTime('now');
         }
         return self::$instance;
     }
     
-    public function writeException(\Throwable $e, $type = -1) {
+    public function writeException(\Throwable $e, $type = -1) : int {
         $this->write(get_class($e).' (FILE: '.$e->getFile().') (LINE: '.$e->getLine().'): '.$e->getMessage(), $type);
     	
         return $e->getLine();
     }
     
-    public function writeDebug($message, $type = 0)
+    public function writeDebug(string $message, int $type = 0) : int
     {
         $debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
         
@@ -38,7 +41,7 @@ class Logger {
         return $debug[0]['line'];
     }
     
-    public function write($message, $type = 0) {
+    public function write(string $message, int $type = 0) : void {
         if (\common\Config::obj()->system['debug'] === "1") {
         	if (!self::$file_handle->flock(LOCK_EX)) {
         		usleep(1);

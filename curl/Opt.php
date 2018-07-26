@@ -6,9 +6,11 @@ use \common\obj\Config as objectConfig;
 
 
 define('common\curl\OPT_FILTER', 'CurlOptionFilter');
-define('common\curl\FILTER_ISRESOURCESTREAM', TRUE);
 
 class Opt extends objectConfig {
+    const FILTER_ISCONFIG = 1;          // use \common\obj\Config and store array from call to \common\obj\Config::getArrayCopy()
+    const FILTER_ISRESOURCESTREAM = 2;
+    
 	protected $cName, $value;
 	
 	protected $config = array(
@@ -95,7 +97,7 @@ class Opt extends objectConfig {
 		CURLOPT_INTERFACE => array(FILTER_SANITIZE_STRING),
 		CURLOPT_KEYPASSWD => array(FILTER_SANITIZE_STRING),
 		CURLOPT_KRB4LEVEL => array(FILTER_SANITIZE_STRING),
-		CURLOPT_POSTFIELDS => array(FILTER_SANITIZE_STRING),
+	    CURLOPT_POSTFIELDS => array(\common\curl\OPT_FILTER, self::FILTER_ISCONFIG),
 		CURLOPT_PROXY => array(FILTER_SANITIZE_STRING),
 		CURLOPT_PROXYUSERPWD => array(FILTER_SANITIZE_STRING),
 		CURLOPT_RANDOM_FILE => array(FILTER_SANITIZE_STRING),
@@ -124,10 +126,10 @@ class Opt extends objectConfig {
 		CURLOPT_QUOTE => array(),
 		
 		
-		CURLOPT_FILE => array(\common\curl\OPT_FILTER, \common\curl\FILTER_ISRESOURCESTREAM),
-		CURLOPT_INFILE => array(\common\curl\OPT_FILTER, \common\curl\FILTER_ISRESOURCESTREAM),
-		CURLOPT_STDERR => array(\common\curl\OPT_FILTER, \common\curl\FILTER_ISRESOURCESTREAM),
-		CURLOPT_WRITEHEADER => array(\common\curl\OPT_FILTER, \common\curl\FILTER_ISRESOURCESTREAM),
+		CURLOPT_FILE => array(\common\curl\OPT_FILTER, self::FILTER_ISRESOURCESTREAM),
+	    CURLOPT_INFILE => array(\common\curl\OPT_FILTER, self::FILTER_ISRESOURCESTREAM),
+	    CURLOPT_STDERR => array(\common\curl\OPT_FILTER, self::FILTER_ISRESOURCESTREAM),
+	    CURLOPT_WRITEHEADER => array(\common\curl\OPT_FILTER, self::FILTER_ISRESOURCESTREAM),
 		
 
 		CURLOPT_HEADERFUNCTION => array(),
@@ -158,9 +160,14 @@ class Opt extends objectConfig {
 		} else if ($offset === 'value' && isset($this->config[$this->cName])) {
 			if ($this->config[$this->cName][0] === \common\curl\OPT_FILTER && isset($this->config[$this->cName][1])) {
 				switch($this->config[$this->cName][1]) {
-					case \common\curl\FILTER_ISRESOURCESTREAM:
+				    case self::FILTER_ISRESOURCESTREAM:
 						$this->value = \common\filters\IsResourceStream::validate($value);
 						break;
+				    case self::FILTER_ISCONFIG:
+				        if ($value instanceOf objectConfig) {
+				            $this->value = $value->getArrayCopy();
+				        }
+				        break;
 				}
 				if ($this->value === FALSE) {
 					throw new \UnexpectedValueException('Invalid value, '.var_export($value, TRUE).', for offset '.$offset.' and cName: '.$this->cName);
