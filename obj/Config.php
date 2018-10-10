@@ -70,4 +70,23 @@ class Config extends \ArrayObject {
 	    
 	    return $arrayCopy;
 	}
+	
+	public function exchangeArray($arguments) {
+	    $oldArray = $this->getArrayCopy();
+	    
+		if (!is_array($arguments)) {
+			$arguments = array($arguments);
+		}
+		foreach ($arguments as $name => $value) {
+			try {
+				$this->offsetSet($name, $value);
+			} catch (\OutOfBoundsException | \UnexpectedValueException | \RuntimeException $oe) {
+				\common\logging\Error::handle($oe);
+				throw $oe;
+			}
+		}
+		unset($tmp, $value);
+		
+		return $oldArray;
+	}	
 }
