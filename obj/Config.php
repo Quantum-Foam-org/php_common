@@ -5,6 +5,7 @@ namespace common\obj;
 
 class Config extends \ArrayObject {
 	protected $config = [];
+	private static $instance = null;
 	
 	public function offsetExists($offset){
 		return property_exists($this, $offset);
@@ -89,4 +90,14 @@ class Config extends \ArrayObject {
 		
 		return $oldArray;
 	}	
+	
+	public static function obj() : Config {
+	    
+	    if (self::$instance === null) {
+	        $cls = get_called_class();
+	        self::$instance = new $cls();
+	    }
+	    
+	    return self::$instance;
+	}
 }
