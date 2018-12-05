@@ -21,9 +21,15 @@ class Config extends \ArrayObject {
 	public function offsetSet($offset, $value) {
 		if (property_exists($this, $offset)) {
 			if (isset($this->config[$offset][0])) {
-				if (!($this->$offset = filter_var($value, $this->config[$offset][0], (isset($this->config[$offset][1]) && is_array($this->config[$offset][1]) ? $this->config[$offset][1] : array())))) {
-					throw new \UnexpectedValueException('Invalid value, '.$value.', for offset '.$offset);
-				}
+                            try {
+                                if (is_array($value)) {
+                                    $this->$offset[] = $this->filterOffset($offset, $value);
+                                } else {
+                                    $this->$offset = $this->filterOffset($offset, $value);
+                                }
+                            } catch(\UnexpectedValueException $e) {
+                                throw $e;
+                            }
 			} else {
 				throw new \RuntimeException('Filter has not been set for offset '.$offset);
 			}
@@ -75,17 +81,18 @@ class Config extends \ArrayObject {
 	public function exchangeArray($arguments) {
 	    $oldArray = $this->getArrayCopy();
 	    
-		if (!is_array($arguments)) {
-			$arguments = array($arguments);
-		}
-		foreach ($arguments as $name => $value) {
-			try {
-				$this->offsetSet($name, $value);
-			} catch (\OutOfBoundsException | \UnexpectedValueException | \RuntimeException $oe) {
-				\common\logging\Error::handle($oe);
-				throw $oe;
-			}
-		}
+		if (is_array($arguments)) {
+                    foreach ($arguments as $name => $value) {
+                            try {
+                                    $this->offsetSet($name, $value);
+                            } catch (\OutOfBoundsException | \UnexpectedValueException | \RuntimeException $oe) {
+                                    \common\logging\Error::handle($oe);
+                                    throw $oe;
+                            }
+                    }
+                } else {
+                    parent::exchangeArray($arguments);
+                }
 		unset($tmp, $value);
 		
 		return $oldArray;
@@ -100,4 +107,12 @@ class Config extends \ArrayObject {
 	    
 	    return self::$instance;
 	}
+        
+        private function filterOffset(string $offset, $value) {
+            if (is_scalar($value) && !($value = filter_var($value, $this->config[$offset][0], (isset($this->config[$offset][1]) && is_array($this->config[$offset][1]) ? $this->config[$offset][1] : array())))) {
+                throw new \UnexpectedValueException('Invalid value, '.$value.', for offset '.$offset);
+            }
+            
+            return $value;
+        }
 }
