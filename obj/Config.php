@@ -18,14 +18,16 @@ class Config extends \ArrayObject {
 		return $this->$offset;
 	}
 	
-	public function offsetSet($offset, $value) {
+	public function offsetSet($offset, $values) {
 		if (property_exists($this, $offset)) {
 			if (isset($this->config[$offset][0])) {
                             try {
-                                if (is_array($value)) {
-                                    $this->$offset[] = $this->filterOffset($offset, $value);
+                                if (is_array($values)) {
+                                    foreach ($values as $value) {
+                                        $this->$offset[] = $this->filterOffset($offset, $value);
+                                    }
                                 } else {
-                                    $this->$offset = $this->filterOffset($offset, $value);
+                                    $this->$offset = $this->filterOffset($offset, $values);
                                 }
                             } catch(\UnexpectedValueException $e) {
                                 throw $e;
