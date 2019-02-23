@@ -23,6 +23,7 @@ class Config extends \ArrayObject {
 			if (isset($this->config[$offset][0])) {
                             try {
                                 if (is_array($values)) {
+                                    $this->$offset = [];
                                     foreach ($values as $value) {
                                         $this->$offset[] = $this->filterOffset($offset, $value);
                                     }
@@ -41,7 +42,7 @@ class Config extends \ArrayObject {
 	}
 	
 	public function offsetUnset($offset) {
-	    if ($this->offsetExists($offset)) {
+	    if (!in_array($offset, array('config', 'instance'), TRUE) && $this->offsetExists($offset)) {
 	       $this->$offset = null;
 	    }
 	}
@@ -54,6 +55,10 @@ class Config extends \ArrayObject {
 	   $this->offsetSet($offset, $value);
 	}
 	
+        public function __unset($offset) {
+            $this->offsetUnset($offset);
+        }
+        
 	/**
 	 * The keys of Config::$config array must be protected variables of the class.
 	 * This will return a list of class variables that will be configured using offsetSet.
