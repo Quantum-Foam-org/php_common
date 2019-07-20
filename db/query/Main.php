@@ -71,7 +71,7 @@ class Main
         return $this;
     }
     
-    public function addWhere(Util\Query $where) {
+    public function addWhere(Where $where) {
         $this->where = $where->getWhere();
         $this->values = $this->where->getValues();
         

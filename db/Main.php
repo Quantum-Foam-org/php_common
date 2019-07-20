@@ -98,12 +98,11 @@ class Main extends \PDO {
      * @param Array $values - A key=>value pair of table field names and values
      * @return string - last insert_id
      */
-    public function insert(string $table, array $values, array $placeholders = null) : string {
+    public function insert(string $table, array $values) : string {
         try {
-            if (empty($placeholders)) {
-                $placeholders = \array_fill(0, \count($values), '?');
-            }
-            $stmt = $this->getSth('INSERT INTO `' . $table . '` (`' . \implode('`, `', \array_keys($values)) . '`) VALUES(' . \implode(', ', $placeholders) . ')', $values);
+            $placeholders = \substr(\str_repeat('?, ', \count($values)), 0, -2);
+            
+            $stmt = $this->getSth(sprintf('INSERT INTO `%s` (`%s`) VALUES (%s)', $table, \implode('`, `', \array_keys($values)), $placeholders), $values);
         } catch (\RuntimeException $e) {
             throw $e;
         }
