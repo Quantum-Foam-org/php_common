@@ -14,6 +14,8 @@ class Main
     private $tables = [];
 
     private $joins = [];
+    
+    private $where = '';
 
     private $order = '';
 
@@ -64,17 +66,38 @@ class Main
         unset($joins, $def);
         return $this;
     }
+    
+    public function addWhere(array $where) {
+        foreach ($where as $def) {
+            if (!isset($def[0], $def[1])) {
+                throw new Exception('Can only set logical operator and (parenthesis and/or expression)', - 1);
+            } else {
+                $logicalOp = array('AND', 'NOT', 'OR', 'XOR');
+                if (!in_array($def[0], $logicalOp)) {
+                    throw new Exception('Can only use '.implode(', ', $logicalOp), -1);
+                }
+                $this->where .= implode(' ', $def);
+            }
+        }
+        unset($where, $def, $logicalOp);
+        
+        if (strlen($this->where) > 0) {
+            $this->where = 'WHERE '.$this->where;
+        }
+        
+        return $this;
+    }
 
     public function addOrder(array $order)
     {
-        $this->order = 'ORDER BY ' . $order[0] . ' ' . (! isset($order[1]) ? 'ASC' : $order[1]);
+        $this->order = (isset($order[0]) ? 'ORDER BY ' . $order[0] . ' ' . (! isset($order[1]) ? 'ASC' : $order[1]) : '');
         unset($order);
         return $this;
     }
 
     public function addLimit(array $limit)
     {
-        $this->limit = 'LIMIT ' . $limit[0] . ', ' . $limit[1];
+        $this->limit = (isset($limit[0], $limit[1]) ? 'LIMIT ' . $limit[0] . ', ' . $limit[1] : '');
         unset($limit);
         return $this;
     }
@@ -99,11 +122,15 @@ class Main
         }
         unset($table, $alias, $def);
         
+        $where = $this->where;
+        
         $order = $this->order;
         
         $limit = $this->limit;
         
-        $this->query = 'SELECT ' . $select . ' FROM ' . $tables . ' ' . $order . ' ' . $limit;
+        $this->query = 'SELECT ' . $select . ' FROM ' . $tables . ' ' . $where . ' ' . $order . ' ' . $limit;
+        
+        $this->query = sprintf('SELECT %s FROM %s %s %s %s', $select, $tables, $where, $order, $limit);
         
         return $this;
     }
