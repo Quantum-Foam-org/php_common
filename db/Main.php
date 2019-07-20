@@ -2,7 +2,7 @@
 
 namespace common\db;
 
-use \common\db\Util\Where as Where;
+use Util\Where as Where;
 
 /**
  * Class which extends PHP's PDO.

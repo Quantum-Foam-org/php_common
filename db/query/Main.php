@@ -1,7 +1,7 @@
 <?php
 namespace \common\db\query;
 
-use \common\db\Util\Query as Where;
+use Util\Query as Where;
 
 /**
  * Creates a SQL select statement and returns the result set

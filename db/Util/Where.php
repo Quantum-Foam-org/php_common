@@ -32,16 +32,17 @@ Class Where {
     /**
      * Will add a where expression
      *
-     * @param string $logicalOp one of AND, NOT, OR, XOR
+     * @param string $logicalOp one of null, AND, NOT, OR, XOR
      * @param string $parenthesisOpen a ( character which is optional 
      * @param string $field a field from the database table
      * @param string $compOp a comparison operator
      * @param string $parenthesisClose a ) character which is optional
      * @param string $value the value of the expression
      */
-    public function addWhereExpression(string $logicalOp, ?string $parenthesisOpen, string $field, string $compOp, ?string $parenthesisClose, string $value) : void
+    public function addWhereExpression(?string $logicalOp, ?string $parenthesisOpen, string $field, string $compOp, ?string $parenthesisClose, string $value) : void
     {
         $logicalOpAc = array(
+            null,
             'AND',
             'NOT',
             'OR',
