@@ -1,5 +1,7 @@
 <?php
-namespace\common\query;
+namespace \common\db\query;
+
+use \common\db\Util\Query as Where;
 
 /**
  * Creates a SQL select statement and returns the result set
@@ -16,6 +18,8 @@ class Main
     private $joins = [];
     
     private $where = '';
+    
+    private $values = [];
 
     private $order = '';
 
@@ -67,23 +71,9 @@ class Main
         return $this;
     }
     
-    public function addWhere(array $where) {
-        foreach ($where as $def) {
-            if (!isset($def[0], $def[1])) {
-                throw new Exception('Can only set logical operator and (parenthesis and/or expression)', - 1);
-            } else {
-                $logicalOp = array('AND', 'NOT', 'OR', 'XOR');
-                if (!in_array($def[0], $logicalOp)) {
-                    throw new Exception('Can only use '.implode(', ', $logicalOp), -1);
-                }
-                $this->where .= implode(' ', $def);
-            }
-        }
-        unset($where, $def, $logicalOp);
-        
-        if (strlen($this->where) > 0) {
-            $this->where = 'WHERE '.$this->where;
-        }
+    public function addWhere(Util\Query $where) {
+        $this->where = $where->getWhere();
+        $this->values = $this->where->getValues();
         
         return $this;
     }
@@ -133,6 +123,10 @@ class Main
         $this->query = sprintf('SELECT %s FROM %s %s %s %s', $select, $tables, $where, $order, $limit);
         
         return $this;
+    }
+    
+    public function getValues() {
+        return $this->values;
     }
 
     public function __toString()

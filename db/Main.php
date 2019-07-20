@@ -2,6 +2,8 @@
 
 namespace common\db;
 
+use \common\db\Util\Where as Where;
+
 /**
  * Class which extends PHP's PDO.
  * 
@@ -116,10 +118,15 @@ class Main extends \PDO {
      * @throws RuntimeException
      * @return integer
      */
-    public function update($table, array $values, array $where = array()) : int {
+    public function update($table, array $values, ?Where $where = null) : int {
+        if ($where === null) {
+            $where = new Where();
+        }
+        
         try {
-            $stmt = $this->getSth('UPDATE `' . $table . '` SET `' . \implode('` = ? , `', \array_keys($values)) . '` = ? '
-                . (!empty($where) ? 'WHERE '. \implode('` = ? AND `', \array_keys($where)) . '`  = ?' : ''), \array_merge($values, $where));
+            $stmt = $this->getSth(
+                sprintf('UPDATE `%s` SET `%s` = ?', $table, \implode('` = ? , `', \array_keys($values)), $where->getWhere()), 
+                \array_merge($values, $where->getValues()));
             $rowCount = $stmt->rowCount();
         } catch (\RuntimeException $e) {
             throw $e;
@@ -135,9 +142,12 @@ class Main extends \PDO {
      * @throws RuntimeException
      * @return integer
      */
-    public function delete($table, array $values) : int {
+    public function delete($table, ?Where $where = null) : int {
+        if ($where === null) {
+            $where = new Where();
+        }
         try {
-            $stmt = $this->getSth('DELETE FROM `' . $table . '` WHERE `' . \implode('` = ? AND `', \array_keys($values)) . '`  = ?', $values);
+            $stmt = $this->getSth(sprintf('DELETE FROM `%s` %s', $table, $where->getWhere()), $where->getValues());
             $rowCount = $stmt->rowCount();
         } catch (\RuntimeException $e) {
             throw $e;
