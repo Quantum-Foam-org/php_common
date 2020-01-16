@@ -26,8 +26,8 @@ class Logger {
         return self::$instance;
     }
 
-    public function writeException(\Throwable $e, $type = -1): int {
-        $this->write(get_class($e) . ' (FILE: ' . $e->getFile() . ') (LINE: ' . $e->getLine() . '): ' . $e->getMessage(), $type);
+    public function writeException(\Throwable $e, $type = -1, $output = FALSE): int {
+        $this->write(get_class($e) . ' (FILE: ' . $e->getFile() . ') (LINE: ' . $e->getLine() . '): ' . $e->getMessage(), $type, $output);
 
         return $e->getLine();
     }

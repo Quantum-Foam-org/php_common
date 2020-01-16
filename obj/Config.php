@@ -117,7 +117,12 @@ class Config extends \ArrayObject {
         
         private function filterOffset(string $offset, $value) {
             if (is_scalar($value) && !($value = filter_var($value, $this->config[$offset][0], (isset($this->config[$offset][1]) && is_array($this->config[$offset][1]) ? $this->config[$offset][1] : array())))) {
-                throw new \UnexpectedValueException('Invalid value, '.$value.', for offset '.$offset);
+                if (isset($this->config[$offset]['message'])) {
+                    $message = $this->config[$offset]['message'];
+                } else {
+                    $message = 'Invalid value for '.$offset;
+                }
+                throw new \UnexpectedValueException($message);
             }
             
             return $value;
