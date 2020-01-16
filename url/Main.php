@@ -10,6 +10,9 @@ class Main {
 	    $this->origUrl = filter_var($url, FILTER_VALIDATE_URL, array('fags' => FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED));
 	    if ($this->origUrl !== FALSE) {
 		    $this->url = parse_url($this->origUrl);
+                    if (!in_array($this->url['scheme'], array('http', 'https'))) {
+                        throw new \UnexpectedValueException('Unexpected Scheme:' . $url);
+                    }
 			$this->sortQuery();
 			$this->setPath();
 			$this->url['urlString'] = sprintf('%s://%s%s%s%s', $this->url['scheme'], 
