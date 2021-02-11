@@ -2,25 +2,23 @@
 
 namespace common\collections;
 
-use \common\db\DbModel as DbModel;
-
 class DataModelStorage extends \ArrayObject {
 
     public function insert() {
         $models = $this->getIterator();
 
         while ($models->valid()) {
-            $models->insert();
+            $models->current()->insert();
 
             $models->next();
         }
     }
     
-    public function insert() {
+    public function delete() {
         $models = $this->getIterator();
         
         while ($models->valid()) {
-            $models->delete();
+            $models->current()->delete();
             
             $models->next();
         }
@@ -30,7 +28,7 @@ class DataModelStorage extends \ArrayObject {
         $models = $this->getIterator();
         
         while ($models->valid()) {
-            $models->update();
+            $models->current()->update();
             
             $models->next();
         }

@@ -2,6 +2,8 @@
 
 namespace common\obj;
 
+use common\logging;
+
 
 class Config extends \ArrayObject {
 	protected $config = [];
@@ -52,8 +54,13 @@ class Config extends \ArrayObject {
 	}
 	
 	public function __set($offset, $value) {
-	   $this->offsetSet($offset, $value);
-	}
+            try {
+                $this->offsetSet($offset, $value);
+            } catch (\OutOfBoundsException | \UnexpectedValueException | \RuntimeException $oe) {
+                \common\logging\Logger::obj()->writeException($oe);
+                throw $oe;
+            }
+        }
 	
         public function __unset($offset) {
             $this->offsetUnset($offset);

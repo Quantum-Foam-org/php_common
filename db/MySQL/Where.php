@@ -1,6 +1,6 @@
 <?php
 
-namespace \common\db\Util;
+namespace \common\db\MySQL;
 
 Class Where {
     

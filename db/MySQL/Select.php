@@ -1,5 +1,5 @@
 <?php
-namespace \common\db\query;
+namespace \common\db\MySQL;
 
 use Util\Query as Where;
 

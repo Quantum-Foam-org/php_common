@@ -1,6 +1,6 @@
 <?php
 
-namespace common\db;
+namespace common\db\PDO;
 
 use Util\Where as Where;
 
@@ -20,10 +20,10 @@ class Main extends \PDO {
     public static function obj() : Main {
         if (!self::$dbh) {
             try {
-                self::$dbh = new \common\db\Main(
-                    \common\Config::obj()->system['dbDsn'],
-                    \common\Config::obj()->system['dbUser'], 
-                    \common\Config::obj()->system['dbPass']);
+                self::$dbh = new \common\db\PDO\Main(
+                    \common\Config::obj()->system['pdo']['dbDsn'],
+                    \common\Config::obj()->system['pdo']['dbUser'], 
+                    \common\Config::obj()->system['pdo']['dbPass']);
                 self::$dbh->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
                 self::$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             } catch (\PDOException $e) {

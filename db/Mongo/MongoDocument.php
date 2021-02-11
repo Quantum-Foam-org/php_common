@@ -1,9 +1,9 @@
 <?php 
 
-namespace \common\db;
+namespace \common\db\MySQL;
 
-use query\Main as Select;
-use \common\obj\Config as objectConfig;
+use common\collections\Mongo as Mongo;
+use common\obj\Config as objectConfig;
 
 /**
  * Extend and configure properties to have a database model
@@ -14,35 +14,28 @@ use \common\obj\Config as objectConfig;
 Class DbModel extends objectConfig {
     protected $pkField;
     protected $pkId;
-    protected $table;
-    protected $tables;
-    protected $joins;
+    protected $namespace;
+    protected $db;
     protected $order;
     protected $limit;
-    protected $db;
     
     public function __construct() {
-        $this->db = \common\db\Main::obj();
-        $this->select = new Select();
+        $this->db = \common\db\Mongo::obj();
+       /* $this->select = new Select();
         $this->select->addFields(\array_keys($this->arrayCopy()))->
                     setTables($tables)->
                     setJoins($this->joins)->
                     setOrder($this->order)->
                     setLimit($this->limit);
+        */
     }
      
     /**
      * Inserts a new row into the database
      * @return int the primary key
      */
-    public function insert() : int {
-       try {
-        $this->pkId = $this->db->insert($this->table, $this->getArrayCopy());
-       } catch (\RuntimeException $e) {
-           $this->pkId = false;
-       }
-       
-       return $this->pkId;
+    public function prepareInsert(MongoDB\Driver\BulkWrite $bulk) : void {
+       $bulk->insert($this->getArrayCopy());
     }
     
     /**
@@ -50,15 +43,8 @@ Class DbModel extends objectConfig {
      * 
      * @return null|int the row count or false on failer
      */
-    public function delete() : ?int {
-        try {
-            $rowCount = $this->db->delete($this->table, $this->getPkWhere());
-        } catch (\RuntimeException $e) {
-            \common\logging\Logger::obj()->writeException($e);
-            $rowCount = null;
-        }
-        
-        return $rowCount;
+    public function prepareDelete(MongoDB\Driver\BulkWrite $bulk) : void {
+        $bulk->delete([$this->pkField => $this->pkId]);
     }
     
     /**
@@ -66,22 +52,14 @@ Class DbModel extends objectConfig {
      * 
      * @return null|int
      */
-    public function update() : ?int {
-        try {
-            $rowCount = $this->db->update($this->table, $this->getArrayCopy(), $this->getPkWhere());
-        } catch (\RuntimeException $e) {
-            \common\logging\Logger::obj()->writeException($e);
-            $rowCount = null;
-        }
-        
-        return $rowCount;
+    public function prepareUpdate(MongoDB\Driver\BulkWrite $bulk) : void {
+        $bulk->update([$this->pkField => $this->pkId], $this->getArrayCopy());
     }
     
     /**
      * The where clause using primary key
      * 
      * @return Where
-     */
     protected function getPkWhere() : Where {
         $where = new Where();
         $where->addWhereExpression(null, null, $this->pkField, '=', null, $this->pkId);
@@ -93,7 +71,6 @@ Class DbModel extends objectConfig {
      * Will get a row from the database
      * 
      * @return array
-     */
     public function get() : array {
        $select = $this->getQuery();
        
@@ -112,7 +89,6 @@ Class DbModel extends objectConfig {
      * 
      * @param int $id the primary key value
      * @return bool
-     */
     public function populateFromDb(int $id) : bool {
         $this->pkId = $id;
         $row = $this->get();
@@ -128,10 +104,11 @@ Class DbModel extends objectConfig {
      * The select query 
      * 
      * @return \query\Main
-     */
     protected function getQuery() : Select {
         $this->select->addWhere($this->getPKWhere());
         
         return $this->select;
     }
+     * 
+     */
 }
