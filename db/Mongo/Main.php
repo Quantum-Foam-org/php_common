@@ -24,7 +24,7 @@ class Main
             try {
                 static::$mongoDbh =  new Main($uri);
             } catch (\MongoDB\Driver\Exception\InvalidArgumentException  | \MongoDB\Driver\Exception\RuntimeException $e) {
-                \common\logging\Logger::obj()->writeException($e);
+                throw $e;
             }
         }
         
@@ -33,10 +33,10 @@ class Main
     
     protected function command(
             string $namespace, 
-            array $command, 
-            array $options = array()) : ?\MongoDB\Driver\Cursor { 
+            array $document, 
+            array $options = []) : ?\MongoDB\Driver\Cursor { 
         try {
-            $cursor = $this->mongodb->executeCommand($namespace, new \MongoDB\Driver\Command($command), $options);
+            $cursor = $this->mongodb->executeCommand($namespace, new \MongoDB\Driver\Command($document), $options);
         } catch(\MongoDB\Driver\Exception\ExecutionTimeoutException $e) {
             \common\logging\Logger::obj()->writeException($e);
             
@@ -48,10 +48,11 @@ class Main
     
     protected function query(
             string $namespace, 
-            array $query, 
+            array $filter, 
+            array $queryOptions = [],
             array $options = array()) : ?\MongoDB\Driver\Cursor {
         try {
-            $cursor = $this->mongodb->executeQuery($namespace, new \MongoDB\Driver\ExecuteQuery($query), $options);
+            $cursor = $this->mongodb->executeQuery($namespace, new \MongoDB\Driver\Query($filter, $queryOptions), $options);
         } catch(\MongoDB\Driver\Exception\ExecutionTimeoutException $e) {
             \common\logging\Logger::obj()->writeException($e);
             $cursor = null;
@@ -88,7 +89,7 @@ class Main
     public function update(
             string $namespace, 
             MongoDocument $document,
-            array $updateOptions =  array()) : ?MongoDB\Driver\WriteResult {
+            array $updateOptions =  []) : ?MongoDB\Driver\WriteResult {
         $bulk = new MongoDB\Driver\BulkWrite();
         
         $bulk->update($document->getFilter(), $document->getArrayCopy(), $updateOptions);
@@ -100,7 +101,7 @@ class Main
     public function delete(
             string $namespace, 
             MongoDocument $document,
-            array $deleteOptions = array()) : ?MongoDB\Driver\WriteResult {
+            array $deleteOptions = []) : ?MongoDB\Driver\WriteResult {
         $bulk = new MongoDB\Driver\BulkWrite();
         
         $bulk->delete($document->getFilter(), $deleteOptions);

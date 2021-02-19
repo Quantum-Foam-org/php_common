@@ -2,7 +2,10 @@
 
 namespace \common\db\MySQL;
 
-Class Where {
+use common\db\PDO\WhereInterface;
+
+
+Class Where implements WhereInterface {
     
     private $where = [];
     private $values = [];
