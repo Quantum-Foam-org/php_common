@@ -63,6 +63,10 @@ class Config extends \ArrayObject {
     public function __unset($offset) {
         $this->offsetUnset($offset);
     }
+    
+    public function __isset($offset) {
+        return isset($this->$offset);
+    }
 
     /**
      * The keys of Config::$config array must be protected variables of the class.
