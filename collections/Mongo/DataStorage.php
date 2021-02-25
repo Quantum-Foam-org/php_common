@@ -20,7 +20,7 @@ class DataStorage extends \ArrayObject {
         parent::offsetSet($index, $newval);
     }
     
-    public function insert(array $options = []) {
+    public function insert(array $options = []) : void {
         $models = $this->getIterator();
 
         while ($models->valid()) {
@@ -28,12 +28,9 @@ class DataStorage extends \ArrayObject {
 
             $models->next();
         }
-        
-        $mongo = new Mongo\Main();
-        $mongo->insert();
     }
     
-    public function delete(array $options = []) {
+    public function delete(array $options = []) : void {
         $models = $this->getIterator();
         
         while ($models->valid()) {
@@ -41,12 +38,9 @@ class DataStorage extends \ArrayObject {
             
             $models->next();
         }
-        
-        $mongo = new Mongo\Main();
-        $mongo->delete();
     }
     
-    public function update(array $options = []) {
+    public function update(array $options = []) : void {
         $models = $this->getIterator();
         
         while ($models->valid()) {

@@ -23,7 +23,8 @@ class Main
 
             try {
                 static::$mongoDbh =  new Main($uri);
-            } catch (\MongoDB\Driver\Exception\InvalidArgumentException  | \MongoDB\Driver\Exception\RuntimeException $e) {
+            } catch (\MongoDB\Driver\Exception\InvalidArgumentException  
+                    | \MongoDB\Driver\Exception\RuntimeException $e) {
                 throw $e;
             }
         }

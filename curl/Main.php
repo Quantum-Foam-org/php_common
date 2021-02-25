@@ -1,8 +1,8 @@
 <?php
 namespace common\curl;
 
-use \common\collections\CurlOptionGroupStorage as curlOptStorage;
-use \common\logging\Logger as Logger;
+use common\collections\CurlOptionGroupStorage as curlOptStorage;
+use common\logging\Logger as Logger;
 use common\collections\CurlOptionGroupStorage;
 
 /**

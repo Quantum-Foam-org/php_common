@@ -8,8 +8,6 @@ use \common\obj\Config as objectConfig;
 /**
  * Extend and configure properties to have a database model
  * 
- * @author Michael Alaimo
- *
  */
 Class DbModel extends objectConfig {
     protected $pkField;
@@ -25,7 +23,7 @@ Class DbModel extends objectConfig {
         $this->db = \common\db\PDO\Main::obj();
         $this->select = new Select();
         $this->select->addFields(\array_keys($this->getArrayCopy()))->
-                    setTables($tables)->
+                    setTables($this->tables)->
                     setJoins($this->joins)->
                     setOrder($this->order)->
                     setLimit($this->limit);
