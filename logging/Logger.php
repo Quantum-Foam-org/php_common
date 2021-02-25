@@ -13,6 +13,10 @@ class Logger {
     );
     protected static $instance = null;
 
+    /**
+     * 
+     * @return Logger
+     */
     public static function obj(): Logger {
 
         if (self::$instance === null) {
@@ -26,12 +30,25 @@ class Logger {
         return self::$instance;
     }
 
+    /**
+     * 
+     * @param \Throwable $e
+     * @param type $type
+     * @param type $output
+     * @return int
+     */
     public function writeException(\Throwable $e, $type = -1, $output = FALSE): int {
         $this->write(get_class($e) . ' (FILE: ' . $e->getFile() . ') (LINE: ' . $e->getLine() . '): ' . $e->getMessage(), $type, $output);
 
         return $e->getLine();
     }
 
+    /**
+     * 
+     * @param string $message
+     * @param int $type
+     * @return int
+     */
     public function writeDebug(string $message, int $type = 0): int {
         $debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
 
@@ -40,7 +57,14 @@ class Logger {
         return $debug[0]['line'];
     }
 
-    public function write(string $message, int $type = 0, $output = FALSE): int {
+    /**
+     * 
+     * @param string $message
+     * @param int $type
+     * @param type $output
+     * @return int
+     */
+    public function write(string $message, int $type = 0, $output = FALSE, ?int $returnCode = null): int {
         if ($output === TRUE) {
             echo $message . "\n";
         }
@@ -68,7 +92,7 @@ class Logger {
             }
         }
         
-        return $type;
+        return $returnCode ?? $type;
     }
 
 }
