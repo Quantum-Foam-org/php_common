@@ -2,8 +2,6 @@
 
 namespace common\db\PDO;
 
-use Util\Where as Where;
-
 /**
  * Class which extends PHP's PDO.
  * 
@@ -117,7 +115,7 @@ class Main extends \PDO {
      * @throws RuntimeException
      * @return integer
      */
-    public function update($table, array $values, ?Where $where = null) : int {
+    public function update($table, array $values, ?WhereInterface $where = null) : int {
         if ($where === null) {
             $where = new Where();
         }
@@ -141,7 +139,7 @@ class Main extends \PDO {
      * @throws RuntimeException
      * @return integer
      */
-    public function delete($table, ?Where $where = null) : int {
+    public function delete($table, ?WhereInterface $where = null) : int {
         if ($where === null) {
             $where = new Where();
         }

@@ -24,7 +24,7 @@ Class DbModel extends objectConfig {
     public function __construct() {
         $this->db = \common\db\PDO\Main::obj();
         $this->select = new Select();
-        $this->select->addFields(\array_keys($this->arrayCopy()))->
+        $this->select->addFields(\array_keys($this->getArrayCopy()))->
                     setTables($tables)->
                     setJoins($this->joins)->
                     setOrder($this->order)->
@@ -68,7 +68,10 @@ Class DbModel extends objectConfig {
      */
     public function update() : ?int {
         try {
-            $rowCount = $this->db->update($this->table, $this->getArrayCopy(), $this->getPkWhere());
+            $rowCount = $this->db->update(
+                    $this->table, 
+                    $this->getArrayCopy(), 
+                    $this->getPkWhere());
         } catch (\RuntimeException $e) {
             \common\logging\Logger::obj()->writeException($e);
             $rowCount = null;

@@ -42,7 +42,14 @@ Class Where implements WhereInterface {
      * @param string $parenthesisClose a ) character which is optional
      * @param string $value the value of the expression
      */
-    public function addWhereExpression(?string $logicalOp, ?string $parenthesisOpen, string $field, string $compOp, ?string $parenthesisClose, string $value) : void
+    public function addWhereExpression(
+            ?string $logicalOp, 
+            ?string $parenthesisOpen, 
+            string $field, 
+            string $compOp, 
+            ?string $parenthesisClose, 
+            string $value
+            ) : void 
     {
         $logicalOpAc = array(
             null,
