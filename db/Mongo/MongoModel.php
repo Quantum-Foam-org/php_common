@@ -11,7 +11,7 @@ use common\obj\Config as objectConfig;
  * @author Michael Alaimo
  *
  */
-Class MongoDocument extends objectConfig {
+Class MongoModel extends objectConfig {
 
     protected $pkField;
     protected $pkId;
