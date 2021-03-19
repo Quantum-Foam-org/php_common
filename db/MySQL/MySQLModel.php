@@ -1,32 +1,33 @@
 <?php 
 
-namespace \common\db\MySQL;
+namespace common\db\MySQL;
 
-use query\Main as Select;
 use \common\obj\Config as objectConfig;
 
 /**
  * Extend and configure properties to have a database model
  * 
  */
-Class DbModel extends objectConfig {
+Class MySQLModel extends objectConfig {
     protected $pkField;
     protected $pkId;
     protected $table;
-    protected $tables;
-    protected $joins;
-    protected $order;
-    protected $limit;
+    protected $tables = [];
+    protected $joins = [];
+    protected $order = [];
+    protected $limit = [1];
     protected $db;
+    protected $select;
+    
     
     public function __construct() {
         $this->db = \common\db\PDO\Main::obj();
         $this->select = new Select();
         $this->select->addFields(\array_keys($this->getArrayCopy()))->
-                    setTables($this->tables)->
-                    setJoins($this->joins)->
-                    setOrder($this->order)->
-                    setLimit($this->limit);
+                    addTables($this->tables)->
+                    addJoins($this->joins)->
+                    addOrder($this->order)->
+                    addLimit($this->limit);
     }
      
     /**
@@ -128,7 +129,7 @@ Class DbModel extends objectConfig {
     /**
      * The select query 
      * 
-     * @return \query\Main
+     * @return Select
      */
     protected function getQuery() : Select {
         $this->select->addWhere($this->getPKWhere());

@@ -1,12 +1,12 @@
 <?php
-namespace \common\db\MySQL;
+namespace common\db\MySQL;
 
 use Util\Query as Where;
 
 /**
  * Creates a SQL select statement and returns the result set
  */
-class Main
+class Select
 {
 
     private $fieldDef = [];
