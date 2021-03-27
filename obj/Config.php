@@ -2,7 +2,7 @@
 
 namespace common\obj;
 
-class Config extends \ArrayObject {
+class Config extends \ArrayAccess implements \Serializable  {
 
     protected $config = [];
     private static $instance = null;
@@ -88,28 +88,25 @@ class Config extends \ArrayObject {
 
         $arrayCopy = [];
         foreach ($params as $param) {
-            $arrayCopy[$param] = $this->$param;
+            $arrayCopy[$param] = $this->offsetGet($param);
         }
 
         return $arrayCopy;
     }
 
-    public function exchangeArray($arguments) {
+    public function exchangeArray(array $arguments) {
         $oldArray = $this->getArrayCopy();
 
-        if (is_array($arguments)) {
-            foreach ($arguments as $name => $value) {
-                try {
-                    $this->offsetSet($name, $value);
-                } catch (\OutOfBoundsException | \UnexpectedValueException | \RuntimeException $oe) {
-                    \common\logging\Error::handle($oe);
-                    throw $oe;
-                }
+        foreach ($arguments as $name => $value) {
+            try {
+                $this->offsetSet($name, $value);
+            } catch (\OutOfBoundsException | \UnexpectedValueException | \RuntimeException $oe) {
+                \common\logging\Error::handle($oe);
+                throw $oe;
             }
-        } else {
-            parent::exchangeArray($arguments);
         }
-        unset($tmp, $value);
+        
+        unset($value);
 
         return $oldArray;
     }
@@ -143,4 +140,12 @@ class Config extends \ArrayObject {
 
         return $nvalue;
     }
+    
+     public function serialize() : string {
+        return serialize($this->getArrayCopy());
+     }
+     
+     public function unserialize(string $serialized) : void {
+         $this->exchangeArray($this->unserialize($serialized));
+     }
 }
