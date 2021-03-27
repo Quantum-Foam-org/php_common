@@ -2,6 +2,8 @@
 
 namespace common\db\PDO;
 
+use common\logging\Logger;
+
 /**
  * Class which extends PHP's PDO.
  * 
@@ -164,7 +166,7 @@ class Main extends \PDO {
                 $sth = $this->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL));
                 $sth->execute(array_values($params));
             } catch (\PDOException $e) {
-                \common\logging\Logger::obj()->writeException($e);
+                Logger::obj()->writeException($e);
             }
         } else {
             $sth = $this->query($sql);
@@ -175,6 +177,64 @@ class Main extends \PDO {
         }
 
         return $sth;
+    }
+    
+    /**
+     * Begins a PDO exception
+     * 
+     * Logs a PDOException upon failure
+     * 
+     * @return bool
+     */
+    public function beginTransaction() : bool {
+        try {
+            $transaction = PDO\Main::obj()->beginTransaction();
+        } catch (\PDOException $e) {
+            Logger::obj()->writeException($e);
+            
+            $transaction = false;
+        }
+        
+        return $transaction;
+    }
+    
+    /**
+     * 
+     * Commits a transaction
+     * 
+     * Will log PDO Exception if the commit fails
+     * 
+     * @return bool
+     */
+    public function commit() : bool {
+        try {
+            $commit = $this->commit();
+        } catch (\PDOException $e) {
+            Logger::obj()->writeException($e);
+            
+            $commit = true;
+        }
+        
+        return $commit;
+    }
+    
+    /**
+     * Rolls back a transaction
+     * 
+     * WIll log a PDO Exception if the rollback fails
+     * 
+     * @return bool
+     */
+    public function rollback() : bool {
+        try {
+            $rollback = $this->rollback();
+        } catch (\PDOException $e) {
+            Logger::obj()->writeException($e);
+            
+            $rollback = false;
+        }
+        
+        return $rollback;
     }
 
     public function __destruct() {
