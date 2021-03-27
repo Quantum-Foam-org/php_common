@@ -1,13 +1,13 @@
 <?php
 
-namespace common\collections\DataStorage\MySQL;
+namespace common\collections\db\MySQL;
 
-use common\collections\DataStorage\AbstractDataModelStorage;
+use common\collections\db\AbstractDataModelStorage;
 use common\db\PDO;
 use common\db\MySQL;
 use common\logging\Logger;
 
-class DataModel extends AbstractDataModelStorage {
+class DataModelStorage extends AbstractDataModelStorage {
     private $error = false;
     private $dataModels = [];
     

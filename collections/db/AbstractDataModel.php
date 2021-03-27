@@ -1,6 +1,6 @@
 <?php
 
-namespace common\collections\DataStorage;
+namespace common\collections\db;
 
 abstract class AbstractDataModelStorage  {
     private $offset = 0;
