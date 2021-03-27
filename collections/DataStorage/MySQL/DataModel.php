@@ -1,21 +1,22 @@
 <?php
 
-namespace common\collections;
+namespace common\collections\DataStorage\MySQL;
 
-use common\db;
+use common\collections\DataStorage\AbstractDataModelStorage;
+use common\db\PDO;
+use common\db\MySQL;
 use common\logging\Logger;
 
-class DataModelStorage extends \ArrayObject {
+class DataModel extends AbstractDataModelStorage {
     private $error = false;
+    private $dataModels = [];
     
     public function insert() : bool {
         PDO\Main::obj()->beginTransaction();
         
-        $models = $this->getIterator();
-
-        while ($models->valid()) {
+        while ($this->valid()) {
             try {
-                $models->current()->insert();
+                $this->current()->insert();
             } catch (\RuntimeException $e) {
                 $this->error = true;
                 Logger::obj()->writeException($e);
@@ -24,7 +25,7 @@ class DataModelStorage extends \ArrayObject {
                 break;
             }
             
-            $models->next();
+            $this->next();
         }
         
         if ($this->error === false) {
@@ -37,11 +38,9 @@ class DataModelStorage extends \ArrayObject {
     public function delete() : bool {
         PDO\Main::obj()->beginTransaction();
         
-        $models = $this->getIterator();
-        
-        while ($models->valid()) {
+        while ($this->valid()) {
             try {
-                $models->current()->delete();
+                $this->current()->delete();
             } catch (\RuntimeException $e) {
                 $this->error = true;
                 Logger::obj()->writeException($e);
@@ -50,7 +49,7 @@ class DataModelStorage extends \ArrayObject {
                 break;
             }
             
-            $models->next();
+            $this->next();
         }
         
         if ($this->error === false) {
@@ -63,11 +62,9 @@ class DataModelStorage extends \ArrayObject {
     public function update() : bool {
         PDO\Main::obj()->beginTransaction();
         
-        $models = $this->getIterator();
-        
-        while ($models->valid()) {
+        while ($this->valid()) {
             try {
-                $models->current()->update();
+                $this->current()->update();
             } catch (\RuntimeException $e) {
                 $this->error = true;
                 Logger::obj()->writeException($e);
@@ -76,7 +73,7 @@ class DataModelStorage extends \ArrayObject {
                 break;
             }
             
-            $models->next();
+            $this->next();
         }
         
         if ($this->error === false) {
@@ -84,5 +81,13 @@ class DataModelStorage extends \ArrayObject {
         }
         
         return !$this->error;
+    }
+    
+    public function offsetSet($offset, $value) : void  {
+        if (!($value instanceof MySQL\MySQLModel)) {
+            throw new \UnexpectedValueException('Value must be an instance of MySQL\MySQLModel');
+        }
+        
+        parent::offsetSet($offset, $value);
     }
 }

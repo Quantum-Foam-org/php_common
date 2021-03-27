@@ -1,52 +1,48 @@
 <?php
 
-namespace common\collections;
+namespace common\collections\DataStorage\Mongo;
 
 use common\db\Mongo as Mongo;
+use common\collections\DataStorage\AbstractDataStorage;
+use common\logging\Logger;
 
-class DataStorage extends \ArrayObject {
+class DataModel extends AbstractDataStorage {
     private $bulk;
     private $namespace;
     
-    public function offsetSet($index, $newval): void {
+    public function offsetSet($offset, $value) : void {
         if ($this->namespace === null) {
-            $this->namespace = $newval->namespace;
+            $this->namespace = $value->namespace;
         }
         
-        if ($this->namespace !== $newval->namespace) {
+        if ($this->namespace !== $value->namespace) {
             throw new \RuntimeException('Mongo Data Storage Models must all use the same namespace');
         }
         
-        parent::offsetSet($index, $newval);
+        parent::offsetSet($offset, $value);
     }
     
     public function insert(array $options = []) : void {
-        $models = $this->getIterator();
+        while ($this->valid()) {
+            $this->current()->prepareInsert($this->getBulk($options));
 
-        while ($models->valid()) {
-            $models->current()->prepareInsert($this->getBulk($options));
-
-            $models->next();
+            $this->next();
         }
     }
     
     public function delete(array $options = []) : void {
-        $models = $this->getIterator();
-        
-        while ($models->valid()) {
-            $models->current()->prepareDelete($this->getBulk($options));
+        while ($this->valid()) {
+            $this->current()->prepareDelete($this->getBulk($options));
             
-            $models->next();
+            $this->next();
         }
     }
     
     public function update(array $options = []) : void {
-        $models = $this->getIterator();
-        
-        while ($models->valid()) {
-            $models->current()->prepareUpdate($this->getBulk($options));
+        while ($this->valid()) {
+            $this->current()->prepareUpdate($this->getBulk($options));
             
-            $models->next();
+            $this->next();
         }
     }
     
