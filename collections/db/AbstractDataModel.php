@@ -2,7 +2,7 @@
 
 namespace common\collections\db;
 
-abstract class AbstractDataModelStorage  {
+abstract class AbstractDataModelStorage implements \ArrayAccess, \Countable, \Iterator {
     private $offset = 0;
     
     abstract public function insert() : void;
