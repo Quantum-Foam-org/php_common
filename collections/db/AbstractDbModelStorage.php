@@ -23,7 +23,7 @@ abstract class AbstractDbModelStorage implements \ArrayAccess  {
     
     public function offsetSet($offset, $value) : void {
         if (!is_int($offset)) {
-            throw new UnexpectedValueException('Offset must be an integer');
+            throw new \UnexpectedValueException('Offset must be an integer');
         }
         
         $this->dataModels[$offset] = $value;
