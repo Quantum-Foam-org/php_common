@@ -2,7 +2,9 @@
 
 namespace common\db\MySQL;
 
-use \common\obj\Config as objectConfig;
+use common\obj\Config as objectConfig;
+use common\logging\Logger;
+use common\db\dbModelInterface;
 
 /**
  * Extend and configure properties to have a database model
@@ -34,7 +36,7 @@ Class MySQLModel extends objectConfig {
      * Inserts a new row into the database
      * @return int the primary key
      */
-    public function insert() : int {
+    public function insert() {
        try {
         $this->pkId = $this->db->insert($this->table, $this->getArrayCopy());
        } catch (\RuntimeException $e) {
@@ -47,13 +49,13 @@ Class MySQLModel extends objectConfig {
     /**
      * Will delete a row from the database
      * 
-     * @return null|int the row count or false on failer
+     * @return null|int the row count or false on failure
      */
-    public function delete() : ?int {
+    public function delete() {
         try {
             $rowCount = $this->db->delete($this->table, $this->getPkWhere());
         } catch (\RuntimeException $e) {
-            \common\logging\Logger::obj()->writeException($e);
+            Logger::obj()->writeException($e);
             $rowCount = null;
         }
         
@@ -65,14 +67,14 @@ Class MySQLModel extends objectConfig {
      * 
      * @return null|int
      */
-    public function update() : ?int {
+    public function update() {
         try {
             $rowCount = $this->db->update(
                     $this->table, 
                     $this->getArrayCopy(), 
                     $this->getPkWhere());
         } catch (\RuntimeException $e) {
-            \common\logging\Logger::obj()->writeException($e);
+            Logger::obj()->writeException($e);
             $rowCount = null;
         }
         
@@ -96,14 +98,14 @@ Class MySQLModel extends objectConfig {
      * 
      * @return array
      */
-    public function get() : array {
+    public function get() : ?array {
        $select = $this->getQuery();
        
        try {
         $row = $this->db->getOne($this->db->getSth((string)$select, $select->getValues()));
        } catch (\RuntimeException $e) {
-        \common\logging\Logger::obj()->writeException($e);
-        $row = [];
+        Logger::obj()->writeException($e);
+        $row = null;
        }
        
        return $row;
@@ -113,7 +115,7 @@ Class MySQLModel extends objectConfig {
      * Populates the object with a row from the database
      * 
      * @param int $id the primary key value
-     * @return bool
+     * @return void
      */
     public function populateFromDb(int $id) : bool {
         $this->pkId = $id;
@@ -123,7 +125,7 @@ Class MySQLModel extends objectConfig {
             $this->offsetSet($column, $value);
         }
         
-        unset($row, $column, $value, $id);
+        return (bool)$row;
     }
     
     /**

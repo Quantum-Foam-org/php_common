@@ -2,8 +2,10 @@
 
 namespace common\collections\DataStorage;
 
-abstract class AbstractDataModelStorage  {
+abstract class AbstractDbModelStorage  {
     private $offset = 0;
+    
+    private $dataModels = [];
     
     abstract public function insert() : void;
     

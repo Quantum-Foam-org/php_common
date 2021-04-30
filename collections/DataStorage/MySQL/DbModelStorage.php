@@ -7,9 +7,8 @@ use common\db\PDO;
 use common\db\MySQL;
 use common\logging\Logger;
 
-class DataModel extends AbstractDataModelStorage {
+class DbModelStorage extends AbstractDataModelStorage {
     private $error = false;
-    private $dataModels = [];
     
     public function insert() : bool {
         PDO\Main::obj()->beginTransaction();

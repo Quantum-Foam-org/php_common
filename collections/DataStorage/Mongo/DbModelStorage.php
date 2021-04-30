@@ -6,7 +6,7 @@ use common\db\Mongo as Mongo;
 use common\collections\DataStorage\AbstractDataStorage;
 use common\logging\Logger;
 
-class DataModel extends AbstractDataStorage {
+class DbModelStorage extends AbstractDataStorage {
     private $bulk;
     private $namespace;
     
