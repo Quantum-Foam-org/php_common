@@ -1,5 +1,7 @@
 <?php
 
+namespace common\db;
+
 
 interface DbModelInterface {
     
