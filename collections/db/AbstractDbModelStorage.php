@@ -1,17 +1,17 @@
 <?php
 
-namespace common\collections\DataStorage;
+namespace common\collections\db;
 
 abstract class AbstractDbModelStorage  {
     private $offset = 0;
     
     private $dataModels = [];
     
-    abstract public function insert() : void;
+    abstract public function insert();
     
-    abstract public function delete() : void;
+    abstract public function delete();
     
-    abstract public function update() : void;
+    abstract public function update();
     
     public function offsetExists($offset) : bool  {
         return array_key_exists($offset, $this->dataModels);

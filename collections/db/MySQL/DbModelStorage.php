@@ -1,16 +1,16 @@
 <?php
 
-namespace common\collections\DataStorage\MySQL;
+namespace common\collections\db\MySQL;
 
-use common\collections\DataStorage\AbstractDataModelStorage;
+use common\collections\db\AbstractDbModelStorage;
 use common\db\PDO;
 use common\db\MySQL;
 use common\logging\Logger;
 
-class DbModelStorage extends AbstractDataModelStorage {
+class DbModelStorage extends AbstractDbModelStorage {
     private $error = false;
     
-    public function insert() : bool {
+    public function insert() {
         PDO\Main::obj()->beginTransaction();
         
         while ($this->valid()) {
@@ -34,7 +34,7 @@ class DbModelStorage extends AbstractDataModelStorage {
         return !$this->error;
     }
     
-    public function delete() : bool {
+    public function delete() {
         PDO\Main::obj()->beginTransaction();
         
         while ($this->valid()) {
@@ -58,7 +58,7 @@ class DbModelStorage extends AbstractDataModelStorage {
         return !$this->error;
     }
     
-    public function update() : bool {
+    public function update() {
         PDO\Main::obj()->beginTransaction();
         
         while ($this->valid()) {
