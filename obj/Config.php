@@ -2,7 +2,7 @@
 
 namespace common\obj;
 
-class Config extends \ArrayAccess implements \Serializable  {
+class Config implements \ArrayAccess, \Serializable  {
 
     protected $config = [];
     private static $instance = null;
