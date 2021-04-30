@@ -33,5 +33,5 @@ interface DbModelInterface {
      * @param string $id
      * @return bool
      */
-    public function populateFromDb(string $id) : bool;
+    public function populateFromDb($id) : bool;
 }

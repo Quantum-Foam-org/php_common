@@ -117,7 +117,7 @@ Class MySQLModel extends objectConfig implements DbModelInterface {
      * @param int $id the primary key value
      * @return void
      */
-    public function populateFromDb(int $id) : bool {
+    public function populateFromDb($id) : bool {
         $this->pkId = $id;
         $row = $this->get();
         

@@ -87,7 +87,7 @@ Class MongoModel extends objectConfig implements dbModelInterface {
         return $document;
     }
 
-    public function populateFromDb(string $id) : bool {
+    public function populateFromDb($id) : bool {
         $this->pkId = $id;
         $document = $this->get();
 
