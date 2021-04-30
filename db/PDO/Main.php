@@ -188,7 +188,7 @@ class Main extends \PDO {
      */
     public function beginTransaction() : bool {
         try {
-            $transaction = PDO\Main::obj()->beginTransaction();
+            $transaction = Main::obj()->beginTransaction();
         } catch (\PDOException $e) {
             Logger::obj()->writeException($e);
             
