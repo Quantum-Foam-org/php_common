@@ -10,11 +10,7 @@ use common\db\DbModelInterface;
  * Extend and configure properties to have a database model
  * 
  */
-<<<<<<< Updated upstream
-Class MySQLModel extends objectConfig {
-=======
 Class MySQLModel extends objectConfig implements DbModelInterface {
->>>>>>> Stashed changes
     protected $pkField;
     protected $pkId;
     protected $table;

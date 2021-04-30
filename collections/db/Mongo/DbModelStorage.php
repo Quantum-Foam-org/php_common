@@ -22,7 +22,7 @@ class DbModelStorage extends AbstractDataStorage {
         parent::offsetSet($offset, $value);
     }
     
-    public function insert(array $options = []) : void {
+    public function insert(array $options = []) {
         while ($this->valid()) {
             $this->current()->prepareInsert($this->getBulk($options));
 
@@ -30,7 +30,7 @@ class DbModelStorage extends AbstractDataStorage {
         }
     }
     
-    public function delete(array $options = []) : void {
+    public function delete(array $options = []) {
         while ($this->valid()) {
             $this->current()->prepareDelete($this->getBulk($options));
             
@@ -38,7 +38,7 @@ class DbModelStorage extends AbstractDataStorage {
         }
     }
     
-    public function update(array $options = []) : void {
+    public function update(array $options = []) {
         while ($this->valid()) {
             $this->current()->prepareUpdate($this->getBulk($options));
             

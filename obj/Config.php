@@ -141,11 +141,11 @@ class Config implements \ArrayAccess, \Serializable  {
         return $nvalue;
     }
     
-     public function serialize() : string {
+    public function serialize() {
         return serialize($this->getArrayCopy());
-     }
-     
-     public function unserialize(string $serialized) : void {
-         $this->exchangeArray($this->unserialize($serialized));
-     }
+    }
+
+    public function unserialize($serialized) {
+        $this->exchangeArray($this->unserialize($serialized));
+    }
 }
