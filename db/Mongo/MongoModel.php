@@ -4,6 +4,7 @@ namespace \common\db\MySQL;
 
 use common\collections\Mongo as Mongo;
 use common\obj\Config as objectConfig;
+use common\db\dbModelInterface;
 
 /**
  * Extend and configure properties to have a database model
@@ -11,7 +12,7 @@ use common\obj\Config as objectConfig;
  * @author Michael Alaimo
  *
  */
-Class MongoModel extends objectConfig {
+Class MongoModel extends objectConfig implements dbModelInterface {
 
     protected $pkField;
     protected $pkId;
@@ -37,27 +38,28 @@ Class MongoModel extends objectConfig {
 
     /**
      * Inserts a new row into the database
-     * @return int the primary key
+     * 
+     * @return MongoDB\Driver\WriteResult|null
      */
-    public function insert(): ?MongoDB\Driver\WriteResult {
+    public function insert() {
         return $this->db->insert($this->namespace, $this);
     }
 
     /**
      * Will update a row in the database
      * 
-     * @return null|int
+     * @return MongoDB\Driver\WriteResult|null
      */
-    public function update(): ?MongoDB\Driver\WriteResult {
+    public function update() {
         return $this->db->update($this->namespace, $this);
     }
 
     /**
      * Will delete a row from the database
      * 
-     * @return null|int the row count or false on failer
+     * @return MongoDB\Driver\WriteResult|null the row count or false on failer
      */
-    public function delete(): ?MongoDB\Driver\WriteResult {
+    public function delete() {
         return $this->db->delete($this->namespace, $this);
     }
 
@@ -85,14 +87,14 @@ Class MongoModel extends objectConfig {
         return $document;
     }
 
-    public function populateFromDb(string $id) {
+    public function populateFromDb(string $id) : bool {
         $this->pkId = $id;
         $document = $this->get();
 
         foreach ($document as $column => $value) {
             $this->offsetSet($column, $value);
         }
-
-        unset($document, $column, $value, $id);
+        
+        return (bool)$document;
     }
 }

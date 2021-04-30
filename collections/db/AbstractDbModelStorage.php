@@ -1,9 +1,11 @@
 <?php
 
-namespace common\collections\db;
+namespace common\collections\DataStorage;
 
-abstract class AbstractDataModelStorage implements \ArrayAccess, \Countable, \Iterator {
+abstract class AbstractDbModelStorage  {
     private $offset = 0;
+    
+    private $dataModels = [];
     
     abstract public function insert() : void;
     

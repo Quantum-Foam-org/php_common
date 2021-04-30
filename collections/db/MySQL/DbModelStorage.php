@@ -1,15 +1,14 @@
 <?php
 
-namespace common\collections\db\MySQL;
+namespace common\collections\DataStorage\MySQL;
 
-use common\collections\db\AbstractDataModelStorage;
+use common\collections\DataStorage\AbstractDataModelStorage;
 use common\db\PDO;
 use common\db\MySQL;
 use common\logging\Logger;
 
-class DataModelStorage extends AbstractDataModelStorage {
+class DbModelStorage extends AbstractDataModelStorage {
     private $error = false;
-    private $dataModels = [];
     
     public function insert() : bool {
         PDO\Main::obj()->beginTransaction();

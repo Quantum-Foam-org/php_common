@@ -1,12 +1,12 @@
 <?php
 
-namespace common\collections\db\Mongo;
+namespace common\collections\DataStorage\Mongo;
 
 use common\db\Mongo as Mongo;
-use common\collections\db\AbstractDataStorage;
+use common\collections\DataStorage\AbstractDataStorage;
 use common\logging\Logger;
 
-class DataModelStorage extends AbstractDataStorage {
+class DbModelStorage extends AbstractDataStorage {
     private $bulk;
     private $namespace;
     
