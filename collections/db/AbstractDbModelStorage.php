@@ -22,11 +22,15 @@ abstract class AbstractDbModelStorage implements \ArrayAccess  {
     }
     
     public function offsetSet($offset, $value) : void {
-        if (!is_int($offset)) {
+        if (!is_null($offset) && !is_int($offset)) {
             throw new \UnexpectedValueException('Offset must be an integer');
         }
         
-        $this->dataModels[$offset] = $value;
+        if (is_null($offset)) {
+            $this->dataModels[] = $value;
+        } else {
+            $this->dataModels[$offset] = $value;
+        }
     }
     
     public function offsetUnset($offset) : void {
