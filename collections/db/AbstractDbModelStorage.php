@@ -2,7 +2,7 @@
 
 namespace common\collections\db;
 
-abstract class AbstractDbModelStorage  {
+abstract class AbstractDbModelStorage implements ArrayAccess  {
     private $offset = 0;
     
     private $dataModels = [];
