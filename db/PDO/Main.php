@@ -188,7 +188,7 @@ class Main extends \PDO {
      */
     public function beginTransaction() : bool {
         try {
-            $transaction = Main::obj()->beginTransaction();
+            $transaction = parent::beginTransaction();
         } catch (\PDOException $e) {
             Logger::obj()->writeException($e);
             
@@ -208,7 +208,7 @@ class Main extends \PDO {
      */
     public function commit() : bool {
         try {
-            $commit = $this->commit();
+            $commit = parent::commit();
         } catch (\PDOException $e) {
             Logger::obj()->writeException($e);
             
@@ -227,7 +227,7 @@ class Main extends \PDO {
      */
     public function rollback() : bool {
         try {
-            $rollback = $this->rollback();
+            $rollback = parent::rollback();
         } catch (\PDOException $e) {
             Logger::obj()->writeException($e);
             
