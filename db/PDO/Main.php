@@ -124,7 +124,7 @@ class Main extends \PDO {
         
         try {
             $stmt = $this->getSth(
-                sprintf('UPDATE `%s` SET `%s` = ?', $table, \implode('` = ? , `', \array_keys($values)), $where->getWhere()), 
+                sprintf('UPDATE `%s` SET `%s` = ? %s', $table, \implode('` = ? , `', \array_keys($values)), $where->getWhere()), 
                 \array_merge($values, $where->getValues()));
             $rowCount = $stmt->rowCount();
         } catch (\RuntimeException $e) {

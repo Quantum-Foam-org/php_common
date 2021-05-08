@@ -1,11 +1,11 @@
 <?php
 
-namespace \common\db\MySQL;
+namespace common\db\MySQL;
 
 use common\db\PDO\WhereInterface;
 
 
-Class Where implements WhereInterface {
+class Where implements WhereInterface {
     
     private $where = [];
     private $values = [];
