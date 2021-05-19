@@ -46,7 +46,7 @@ abstract class AbstractDbModelStorage implements \ArrayAccess  {
     }
 
     public function next() {
-        return $this->dataModels[++$this->next];
+        return $this->dataModels[$this->next++];
     }
     
     public function rewind() {
