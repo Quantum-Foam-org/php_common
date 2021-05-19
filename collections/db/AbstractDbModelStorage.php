@@ -3,7 +3,7 @@
 namespace common\collections\db;
 
 abstract class AbstractDbModelStorage implements \ArrayAccess  {
-    private $offset = 0;
+    private $next = 0;
     
     private $dataModels = [];
     
@@ -38,23 +38,23 @@ abstract class AbstractDbModelStorage implements \ArrayAccess  {
     }
     
     public function current() {
-        return $this->dataModels[$this->offset];
+        return $this->dataModels[$this->next];
     }
     
     public function key() {
-        return $this->offset;
+        return $this->next;
     }
 
     public function next() {
-        return $this->dataModels[++$this->offset];
+        return $this->dataModels[$this->next++];
     }
     
     public function rewind() {
-        return $this->offset = 0;
+        return $this->next = 0;
     }
 
     public function valid() : bool {
-        return $this->offset < $this->count();
+        return $this->next < $this->count();
     }
     
     public function count ( ) : int {
