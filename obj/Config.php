@@ -131,21 +131,21 @@ class Config implements \ArrayAccess, \Serializable  {
                         array()))) === false
             ) {
             if (isset($this->config[$offset]['message'])) {
-                $message = $this->config[$offset]['message'];
+                $message = sprintf($this->config[$offset]['message'], $value);
             } else {
                 $message = 'Invalid value for ' . $offset;
             }
             throw new \UnexpectedValueException($message);
         }
 
-        return $nvalue;
+        return $nvalue ?? false;
     }
     
     public function serialize() {
-        return serialize($this->getArrayCopy());
+        return \serialize($this->getArrayCopy());
     }
 
     public function unserialize($serialized) {
-        $this->exchangeArray($this->unserialize($serialized));
+        $this->exchangeArray(\unserialize($serialized));
     }
 }
