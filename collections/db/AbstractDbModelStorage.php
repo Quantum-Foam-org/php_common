@@ -2,10 +2,10 @@
 
 namespace common\collections\db;
 
-abstract class AbstractDbModelStorage implements \ArrayAccess  {
+abstract class AbstractDbModelStorage implements \ArrayAccess, \Countable  {
     private $next = 0;
     
-    private $dataModels = [];
+    protected $dataModels = [];
     
     abstract public function insert();
     
