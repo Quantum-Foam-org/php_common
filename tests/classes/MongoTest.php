@@ -7,7 +7,7 @@ use common\logging\Logger as Logger;
 class MongoTest {
     
     public function testMongoQuery() : bool {
-        Logger::obj()->write('1message', 1, true);
+        //Logger::obj()->write('1message', 1, true);
         return true;
     }
     
