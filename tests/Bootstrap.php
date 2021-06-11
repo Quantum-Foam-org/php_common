@@ -1,6 +1,6 @@
 <?php
 
-namespace HTTPTestingUtilities\tests;
+namespace common\tests;
 
 require_once(__DIR__.'/autoload.php');
 

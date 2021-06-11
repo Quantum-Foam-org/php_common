@@ -1,10 +1,9 @@
 <?php
 
-namespace \common\db\MySQL;
+namespace common\db\Mongo;
 
-use common\collections\Mongo as Mongo;
 use common\obj\Config as objectConfig;
-use common\db\dbModelInterface;
+use common\db\DbModelInterface;
 
 /**
  * Extend and configure properties to have a database model
@@ -12,16 +11,27 @@ use common\db\dbModelInterface;
  * @author Michael Alaimo
  *
  */
-Class MongoModel extends objectConfig implements dbModelInterface {
-
+Class MongoModel extends objectConfig implements DbModelInterface {
+    protected $_id;
+    
     protected $pkField;
     protected $pkId;
     protected $namespace;
     protected $db;
     protected $order;
+    
 
     public function __construct() {
-        $this->db = \common\db\Mongo::obj();
+        $this->db = Main::obj();
+        $this->_id = $this->pkId = new \MongoDB\BSON\ObjectId();
+        
+        $this->config['_id'] = [
+            FILTER_CALLBACK,
+            [
+                'options' => 
+                'common\filters\mongo\ObjectId::validate'
+            ]
+        ];
     }
 
     public function prepareInsert(MongoDB\Driver\BulkWrite $bulk): void {
@@ -88,7 +98,7 @@ Class MongoModel extends objectConfig implements dbModelInterface {
     }
 
     public function populateFromDb($id) : bool {
-        $this->pkId = $id;
+        $this->pkId = new \MongoDB\BSON\ObjectId($id);
         $document = $this->get();
 
         foreach ($document as $column => $value) {
